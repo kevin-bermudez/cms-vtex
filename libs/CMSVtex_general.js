@@ -19,6 +19,9 @@ module.exports = (function( cms_vtex_general ){
 	//url base para las peticiones al CMS de Vtex
 	cms_vtex_general.url_base = 'https://' + cms_vtex_general.account_name + '.vtexcommercestable.com.br/';
 
+	//url arquivos
+	cms_vtex_general.url_arquivos = 'https://' + cms_vtex_general.account_name + '.vteximg.com.br/arquivos'
+
 	//reemplaza las etiquetas html escapadas en una cadena por su respectiva entidad
 	cms_vtex_general.get_html_entities = ( html_content ) => {
 		return entities.decode(html_content).replace(new RegExp('&amp;', 'g'),'&')
