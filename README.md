@@ -5,4 +5,4 @@
 ## ¿Cómo instalar?
 
 1. Ubicarse en el proyecto desde la terminal.
-2. Escribir en la terminal: npm install --save <Url al repositorio donde se encuentra el módulo>
+2. Escribir en la terminal: npm install --save __<Url al repositorio donde se encuentra el módulo>__
