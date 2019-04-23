@@ -100,24 +100,21 @@ module.exports = function( cms_vtex_file ){
 	}
 
 	cms_vtex_file.file_exist = ( name_file ) => {
-		let uri_def = CMSVtex_general.url_base + '/admin/a/FilePicker/FileExists?changedFileName=';
-
+		//let uri_def = CMSVtex_general.url_base + '/admin/a/FilePicker/FileExists?changedFileName=' + name_file;
+		let uri_def = CMSVtex_general.url_arquivos + '/' + name_file
 		let data = {
-			DIPPKP : name_file,
+			fileName : name_file,
 			folder : '/admin/uploads'
 		}
 
-		let response_sync = request('POST',uri_def,{
+		let response_sync = request('GET',uri_def,{
 			headers : {
 				'Cookie' : CMSVtex_general.cookie_vtex,
 				'Content-Type' : 'text/html'
 			},
-			body : querystring.stringify( data )
 		})
 
-		let body = response_sync.body.toString();
-
-		console.log(body);
+		return (response_sync.statusCode == 200)
 	}
 
 	cms_vtex_file.upload = async ( filepath ) => {
@@ -148,6 +145,18 @@ module.exports = function( cms_vtex_file ){
 
 		  return response
 		} catch(err) { return err }
+	}
+
+	cms_vtex_file.update = ( name_file,file_path ) => {
+		if(cms_vtex_file.file_exist(name_file)){
+			return cms_vtex_file.upload( file_path );
+		}
+		else{
+
+			return new Promise((resolve,reject) => {
+				resolve('Lo siento este archivo no existe :\'( intente crearlo');
+			})
+		}
 	}
 
 	cms_vtex_file.delete = ( id_file,file_type ) => {

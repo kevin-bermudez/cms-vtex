@@ -1,4 +1,6 @@
 const CMSVtex = require('./cms-vtex-chef');
+const CMSVtex_file = require('./cms-vtex-chef/libs/CMSVtex_file')
+const path = require('path');
 
 //test websites
 //let websites = CMSVtex.get_websites()
@@ -45,8 +47,8 @@ const CMSVtex = require('./cms-vtex-chef');
 //let delete_template = CMSVtex.delete_shelf_template('202dd665f27b4f6f94415a93f7677ebe');
 //console.log('template deleted',delete_template)
 ////get shelf template
-let list_shelfs = CMSVtex.get_shelf_templates();
-console.log('list shelfs',list_shelfs)
+//let list_shelfs = CMSVtex.get_shelf_templates();
+//console.log('list shelfs',list_shelfs)
 
 //test folders
 ////get folder
@@ -107,3 +109,48 @@ console.log('new object is',new_object)*/
 //let delete_object = CMSVtex.delete_object_control('fd365dd5-73ca-4400-badd-0a41fd3aca20','html','11512a5e-d2a4-41f1-bf12-d1021e90bdcb');
 //console.log('delete object is',delete_object)
 
+//tests files
+////get list files
+//let list_files_css = CMSVtex.get_list_files( 'css' )
+//console.log('list files css',list_files_css)
+//let list_files_js = CMSVtex.get_list_files( 'js' )
+//console.log('list files js',list_files_js)
+//let list_files_images = CMSVtex.get_list_files( 'images' )
+//console.log('list files images',list_files_images)
+
+////get file
+//let file_css = CMSVtex_file.get_file('155187');
+//console.log('file css is',file_css)
+//let file_js = CMSVtex_file.get_file('emailUserReview.js');
+//console.log('file js is',file_js)
+////get image
+/*let file_img = CMSVtex_file.get_file(96,'img','jpg',path.join(__dirname,'src/images'));
+file_img
+.then(({ filename, image }) => {
+	console.log('File saved to', filename)
+})
+.catch((err) => {
+console.error(err)
+})*/
+
+////get request token
+//let request_token = CMSVtex_file.get_request_token();
+//console.log('request token is',request_token)
+////upload file
+/*let upload_file_css = CMSVtex_file.upload( path.join(__dirname,'cms-vtex-chef','templates','fondo-newsletter.png') );
+upload_file_css //false si no guarda
+.then(( response ) => {
+	console.log('upload file is',response)
+})*/
+////delete file
+//let delete_file = CMSVtex_file.delete( '156053','image' );
+//console.log('delete file',delete_file);
+////existe file
+//let file_exist = CMSVtex_file.file_exist('fondo-newsletter.jpg');
+//console.log('exist file',file_exist)
+////update file
+//let update_file = CMSVtex_file.update('test.css',path.join(__dirname,'cms-vtex-chef','templates','test.css'));
+//update_file
+//.then(( response ) => {
+//	console.log('update file is',response);
+//})
