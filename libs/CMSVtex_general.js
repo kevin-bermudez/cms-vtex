@@ -16,8 +16,11 @@ module.exports = (function( cms_vtex_general ){
 	//url relativa donde están almacenados los templates y folders localmente
 	cms_vtex_general.url_src = './src';
 
+	//host base
+	cms_vtex_general.host = cms_vtex_general.account_name + '.vtexcommercestable.com.br';
+
 	//url base para las peticiones al CMS de Vtex
-	cms_vtex_general.url_base = 'https://' + cms_vtex_general.account_name + '.vtexcommercestable.com.br/';
+	cms_vtex_general.url_base = 'https://' + cms_vtex_general.host + '/';
 
 	//url arquivos
 	cms_vtex_general.url_arquivos = 'https://' + cms_vtex_general.account_name + '.vteximg.com.br/arquivos'

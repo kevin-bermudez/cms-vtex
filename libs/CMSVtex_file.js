@@ -80,41 +80,74 @@ module.exports = function( cms_vtex_file ){
 		return JSON.parse(response_sync.body.toString()).rows
 	}
 
-	cms_vtex_file.upload = () => {
-		var fs = require("fs");
-		var request = require("request");
+	cms_vtex_file.get_request_token = () => {
+		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/AddFile?fileType=css';
 
-		var options = { method: 'POST',
-		  url: 'https://chefcompany.vtexcommercestable.com.br/admin/a/FilePicker/UploadFile',
-		  headers: 
-		   { 'Postman-Token': '310ae978-066b-4682-be54-498704a63a0e',
-		     'cache-control': 'no-cache',
-		     Connection: 'keep-alive',
-		     'content-length': '801',
-		     'accept-encoding': 'gzip, deflate',
-		     Host: 'chefcompany.vtexcommercestable.com.br',
-		     Accept: '*/*',
-		     'User-Agent': 'PostmanRuntime/7.11.0',
-		     'Content-Type': 'application/x-www-form-urlencoded',
-		     Cookie: 'VtexIdclientAutCookie=eyJhbGciOiJFUzI1NiIsImtpZCI6IkMwNzI5NzczNkM5NzRGNUM4MTZGQkY5MTlCRTlFQTk1MDE0MEMyNDAiLCJ0eXAiOiJqd3QifQ.eyJzdWIiOiJrYmVybXVkZXNAY2hlZmNvbXBhbnkuY28iLCJhY2NvdW50IjoiX192dGV4X2FkbWluIiwic2NvcGUiOiJjaGVmY29tcGFueTphZG1pbiIsImF1dGhvcml6YWJsZXMiOlsidnJuOmlhbTpfX3Z0ZXhfYWRtaW46dXNlcnMva2Jlcm11ZGVzQGNoZWZjb21wYW55LmNvIl0sImV4cCI6MTU1NjAyNTcyMSwib0F1dGhVc2VySW5mbyI6MTA1MjkyNzMsIm9BdXRoVXNlckluZm9MaXN0IjpbMTA1MjkyNzNdLCJ1c2VySWQiOiI2NTdlZDIwNC03ZWQxLTQ0MjItOGY0MC0wMzFhZTRiYmM2ODMiLCJhdXRoX2x2bCI6InN0cm9uZyIsImlhdCI6MTU1NTkzOTMyMSwiaXNzIjoidG9rZW4tZW1pdHRlciIsImp0aSI6IjMxZDYwNjZiLWIwZjktNDVmNC1iOTlkLTM5MTU0ZGQ1NTc0ZiJ9.Z5MkxsXqJS4BQ4yLraNumB7Q7nz1X6VKnineQmWaJUshVnGigMJXZOW-gij9TDg5KFyfqej_Yz8Y8GpKJvE1PQ,VtexIdclientAutCookie=eyJhbGciOiJFUzI1NiIsImtpZCI6IkMwNzI5NzczNkM5NzRGNUM4MTZGQkY5MTlCRTlFQTk1MDE0MEMyNDAiLCJ0eXAiOiJqd3QifQ.eyJzdWIiOiJrYmVybXVkZXNAY2hlZmNvbXBhbnkuY28iLCJhY2NvdW50IjoiX192dGV4X2FkbWluIiwic2NvcGUiOiJjaGVmY29tcGFueTphZG1pbiIsImF1dGhvcml6YWJsZXMiOlsidnJuOmlhbTpfX3Z0ZXhfYWRtaW46dXNlcnMva2Jlcm11ZGVzQGNoZWZjb21wYW55LmNvIl0sImV4cCI6MTU1NjAyNTcyMSwib0F1dGhVc2VySW5mbyI6MTA1MjkyNzMsIm9BdXRoVXNlckluZm9MaXN0IjpbMTA1MjkyNzNdLCJ1c2VySWQiOiI2NTdlZDIwNC03ZWQxLTQ0MjItOGY0MC0wMzFhZTRiYmM2ODMiLCJhdXRoX2x2bCI6InN0cm9uZyIsImlhdCI6MTU1NTkzOTMyMSwiaXNzIjoidG9rZW4tZW1pdHRlciIsImp0aSI6IjMxZDYwNjZiLWIwZjktNDVmNC1iOTlkLTM5MTU0ZGQ1NTc0ZiJ9.Z5MkxsXqJS4BQ4yLraNumB7Q7nz1X6VKnineQmWaJUshVnGigMJXZOW-gij9TDg5KFyfqej_Yz8Y8GpKJvE1PQ; ISSMB=ScreenMedia=0&UserAcceptMobile=False; IPI=UsuarioGUID=657ed204-7ed1-4422-8f40-031ae4bbc683; SGTS=D00BEE0930A6EE45B080F807830D3653; SGTP=UGUIDReturn=True',
-		     'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' },
-		  formData: 
-		   { Filename: 'test-add-2.css',
-		     fileext: '*.jpg;*.png;*.gif;*.jpeg;*.ico;*.js;*.css',
-		     folder: '/uploads',
-		     requestToken: '5JUBLKEBLEPTMD5DPVKOLJ2Z0X1E0T1V0D1I0R1E0K1C0I1P0E1L0I1F636915502666910432',
-		     Filedata: 
-		      { value: 'fs.createReadStream("/Users/kevinbermudez/Documents/Proyectos/pruebas-html/cms-vtex-chef/templates/test.css")',
-		        options: 
-		         { filename: '/Users/kevinbermudez/Documents/Proyectos/pruebas-html/cms-vtex-chef/templates/test.css',
-		           contentType: null } } } };
+		let response_sync = request('POST',uri_def,{
+			headers : {
+				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Content-Type' : 'text/html'
+			}
+		})
 
-		request(options, function (error, response, body) {
-		  if (error) throw new Error(error);
+		let body = response_sync.body.toString();
 
-		  console.log(body);
-		});
+		$ = cheerio.load(body);
 
+		let request_token = $('#fileUploadRequestToken').attr('value')
+
+		return request_token;
+	}
+
+	cms_vtex_file.file_exist = ( name_file ) => {
+		let uri_def = CMSVtex_general.url_base + '/admin/a/FilePicker/FileExists?changedFileName=';
+
+		let data = {
+			DIPPKP : name_file,
+			folder : '/admin/uploads'
+		}
+
+		let response_sync = request('POST',uri_def,{
+			headers : {
+				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Content-Type' : 'text/html'
+			},
+			body : querystring.stringify( data )
+		})
+
+		let body = response_sync.body.toString();
+
+		console.log(body);
+	}
+
+	cms_vtex_file.upload = async ( filepath ) => {
+		try {
+		  const form = new form_data()
+		  form.append('Filename', filepath)
+		  form.append('fileext', '*.jpg;*.png;*.gif;*.jpeg;*.ico;*.js;*.css')
+		  form.append('folder', '/uploads')
+		  form.append('Upload', 'Submit Query')
+		  form.append('requestToken', cms_vtex_file.get_request_token())
+		  form.append('Filedata', fs.createReadStream(filepath))
+
+		  const response = await new Promise((resolve, reject) => {
+		    form.submit({
+		      host : CMSVtex_general.host,
+		      protocol:'https:',
+		      'path': '/admin/a/FilePicker/UploadFile',
+		      'headers': {
+		        'Cookie': CMSVtex_general.cookie_vtex,
+		        'Content-Type': form.getHeaders()['content-type'],
+		      }
+		    }, (err, res) => {
+		      if (err) reject(err)
+		      else if(res.statusCode > parseInt(200)) reject(false)
+		      resolve('success')
+		    })
+		  })
+
+		  return response
+		} catch(err) { return err }
 	}
 
 	cms_vtex_file.delete = ( id_file,file_type ) => {
