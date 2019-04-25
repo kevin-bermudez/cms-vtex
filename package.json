@@ -27,7 +27,7 @@
     "html-entities": "^1.2.1",
     "open": "^6.1.0",
     "sync-request": "^6.1.0",
-    "image-downloader": "^3.4.2",
+    "image-downloader": "^3.4.2"
   },
   "homepage": "https://bitbucket.org/kevin_chef/cms-vtex-chef#readme"
 }
