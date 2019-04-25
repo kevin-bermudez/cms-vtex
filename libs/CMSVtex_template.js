@@ -45,7 +45,7 @@ module.exports = function( cms_vtex_template ){
 				return_var.push({
 					id : $(this).find('a').attr('href').split('=')[1],
 					name : $(this).find('div').text(),
-					html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
+					html : (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
 				})
 			})	
 			return return_var
@@ -56,9 +56,17 @@ module.exports = function( cms_vtex_template ){
 
 	cms_vtex_template.get_shelf_templates = () => { return cms_vtex_template.get( false,true )}
 
-	cms_vtex_template.get_template = ( id_template,html_full ) => {
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/TemplateContent?templateId=' + id_template,
-			response_sync = request('GET',uri_def,{
+	cms_vtex_template.get_template = ( id_template,shelf,html_full ) => {
+		
+		if(shelf){
+			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/ShelfTemplateContent?ShelfTemplateId=' + id_template
+		}
+		else{
+			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/TemplateContent?templateId=' + id_template
+		}
+		
+		
+		let response_sync = request('GET',uri_def,{
 				headers : {
 					'Cookie' : CMSVtex_general.cookie_vtex,
 					'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
