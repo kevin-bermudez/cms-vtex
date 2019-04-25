@@ -51,6 +51,7 @@ module.exports = function(){
 		delete_object_control : CMSVtex_layout.delete_object,
 		//files
 		get_list_files : CMSVtex_file.get_list,
+		download_file : CMSVtex_file.get_file,
 		upload_file : CMSVtex_file.upload,
 		//login
 		vtex_login : CMSVtex_login
