@@ -3,6 +3,7 @@ const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
 const CMSVtex_general = require('./CMSVtex_general');
+const CMSVtex_layout = require('./CMSVtex_layout');
 
 module.exports = function( cms_vtex_folder ){
 	cms_vtex_folder.get = ( website,folder ) => {
@@ -52,17 +53,13 @@ module.exports = function( cms_vtex_folder ){
 		if($('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
 			return_var.layouts = []
 			$('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').each(function(){
-				let layout_tmp = cms_vtex_folder.get_layout( $(this).find('.IconDel').attr('href').split('layoutId=')[1] )
-
-				return_var.layouts.push({
-					id : layout_tmp.id_layout,
-					name : layout_tmp.nombre,
-					placeholders : layout_tmp.placeholders
-				})
+				let layout_tmp = CMSVtex_layout.get( $(this).find('.IconDel').attr('href').split('layoutId=')[1] );
+				console.log(layout_tmp)
+				return_var.layouts.push(layout_tmp);
 			})
 		}
 
-		console.log('end get folder',folder)
+		console.log('end get folder',folder);
 		return return_var;
 	}
 

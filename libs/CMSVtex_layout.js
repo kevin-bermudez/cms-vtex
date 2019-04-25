@@ -22,6 +22,9 @@ module.exports = function( cms_vtex_layout ){
 				id_template : $('#templateId').attr('value'),
 				id_layout : $('#layoutId').attr('value'),
 				name : $('form[action="/admin/a/PortalManagement/SaveLayoutSetting"] fieldset legend').text(),
+				default : (typeof $('#layoutDefault').attr('checked') != 'undefined'),
+				active : (typeof $('#isActive').attr('checked') != 'undefined'),
+				use_legacy : (typeof $('#useLegacy').attr('checked') != 'undefined'),
 				placeholders : []
 			}
 		$('.vtex-placeholder-span').each(function(){

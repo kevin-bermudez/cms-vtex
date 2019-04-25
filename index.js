@@ -8,6 +8,7 @@ const CMSVtex_website = require(path.join(__dirname,'libs/CMSVtex_website'));
 const CMSVtex_folder = require(path.join(__dirname,'libs/CMSVtex_folder'));
 const CMSVtex_layout = require(path.join(__dirname,'libs/CMSVtex_layout'));
 const CMSVtex_template = require(path.join(__dirname,'libs/CMSVtex_template'));
+const CMSVtex_login = require(path.join(__dirname,'libs/CMSVtex_login'));
 const CMSVtex_file = require(path.join(__dirname,'libs/CMSVtex_file'));
 
 module.exports = function(){
@@ -50,6 +51,8 @@ module.exports = function(){
 		delete_object_control : CMSVtex_layout.delete_object,
 		//files
 		get_list_files : CMSVtex_file.get_list,
-		upload_file : CMSVtex_file.upload
+		upload_file : CMSVtex_file.upload,
+		//login
+		vtex_login : CMSVtex_login
 	}
 }()

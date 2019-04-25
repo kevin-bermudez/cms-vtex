@@ -26,39 +26,45 @@ const save_cookie = ( cookie ) => {
 	fs.writeFileSync(path.join(__dirname,'../config.json'),JSON.stringify(cookie_def,null,1));
 }
 
-//settings
-app.set('port', process.env.PORT || 2000);
-
-//middlewares
-app.use((req, res, next) => {
-	console.log(`${req.url}`,`${req.method}`);
-	next();
-})
-
-//routes
-app.use(router)
-
-//start server
-app.listen(app.get('port'), () =>{
-	console.log('server on port ', app.get('port'))	
-})
-
-router.get('/get-cookie',(req,res) => {
-	let html = fs.readFileSync(path.join(__dirname,'../templates/login-vtex.html'),'utf8')
-	res.end(html)
-})
-
-router.get('/cookie-auth',(req,res) => {
-	let cookie_auth = get_cookie('VtexIdclientAutCookie',req.headers.cookie)
-	console.log("Cookie de autenticación es :  ", cookie_auth);
-	save_cookie(cookie_auth)
-	let html = fs.readFileSync(path.join(__dirname,'../templates/cerrar-ventana.html'),'utf8')
-	res.end(html)
-	res.end('obteniendo cookie')
-	process.exit(0)
-})
-
 const open = require('open');
-const url_base = 'http://localhost:' + app.get('port')
-open(url_base + '/get-cookie')
+
+module.exports = function(){
+	//settings
+	app.set('port', process.env.PORT || 2000);
+
+	//middlewares
+	app.use((req, res, next) => {
+		console.log(`${req.url}`,`${req.method}`);
+		next();
+	})
+
+	//routes
+	app.use(router)
+
+	//start server
+	app.listen(app.get('port'), () =>{
+		console.log('server on port ', app.get('port'))	
+	})
+
+	router.get('/get-cookie',(req,res) => {
+		let html = fs.readFileSync(path.join(__dirname,'../templates/login-vtex.html'),'utf8')
+		res.end(html)
+	})
+
+	router.get('/cookie-auth',(req,res) => {
+		let cookie_auth = get_cookie('VtexIdclientAutCookie',req.headers.cookie)
+		console.log("Cookie de autenticación es :  ", cookie_auth);
+		save_cookie(cookie_auth)
+		let html = fs.readFileSync(path.join(__dirname,'../templates/cerrar-ventana.html'),'utf8')
+		res.end(html)
+		res.end('obteniendo cookie')
+		process.exit(0)
+	})
+
+	const url_base = 'http://localhost:' + app.get('port')
+
+	console.log(url_base + '/get-cookie')
+	open(url_base + '/get-cookie')
+}
+
 
