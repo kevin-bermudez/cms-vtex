@@ -53,6 +53,7 @@ module.exports = function(){
 		get_list_files : CMSVtex_file.get_list,
 		download_file : CMSVtex_file.get_file,
 		upload_file : CMSVtex_file.upload,
+		delete_file : CMSVtex_file.delete,
 		//login
 		vtex_login : CMSVtex_login
 	}

@@ -28,8 +28,9 @@ module.exports = function( cms_vtex_file ){
 					'Content-Type' : 'text'
 				}
 			})
-
-			console.log(response_sync)
+			if(response_sync.statusCode > 300){
+				console.log(response_sync)	
+			}
 
 			let body = response_sync.body.toString()
 
@@ -42,10 +43,10 @@ module.exports = function( cms_vtex_file ){
 			let dest_exist = fs.existsSync( dest );
 
 			if(dest_exist){
-				console.log('si existe');
+				//console.log('si existe');
 			}
 			else{
-				console.log('aún no existe');
+				//console.log('aún no existe');
 				fs.mkdirSync( dest )
 			}
 
@@ -62,7 +63,7 @@ module.exports = function( cms_vtex_file ){
 	cms_vtex_file.get_list = ( file_type,quantity_files_us ) => {
 		let data = {
 			page : 1,
-			rp : (quantity_files_us) ? quantity_files_us : 200,
+			rp : (quantity_files_us) ? quantity_files_us : 200000000,
 			sortname : "IdArquivo",
 		}
 
