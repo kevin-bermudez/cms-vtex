@@ -42,7 +42,7 @@ module.exports = function( cms_vtex_layout ){
 						return placeholder.id
 					}).indexOf($(this).parent().attr('containerid'))
 
-					var tipo = cms_vtex_layout.get_type_control( $(this).attr('id').split('TSC')[0] );
+					var tipo = CMSVtex_general.get_type_control( $(this).attr('id').split('TSC')[0] );
 
 					if(index_placeholder !== -1){
 						return_var.placeholders[index_placeholder].controls.push({
@@ -69,45 +69,7 @@ module.exports = function( cms_vtex_layout ){
 			}
 		*/
 		return return_var
-	}
-
-	cms_vtex_layout.get_type_control = ( id_type,name_type ) => {
-		types_pred = [
-			{
-				id : '28488dba-be4f-4ba3-a0e0-355e6a86d406',
-				name : 'html'
-			},
-			{
-				id : '1a3c6f6c-854a-4223-8ff1-0e16e11144af',
-				name : 'banner-html'
-			},
-			{
-				id : '2a673f22-79a1-4519-93bc-7d30edd9e2c2',
-				name : 'coleccion'
-			},
-			{
-				id : '71cf9b9e-81ec-44cc-af38-e6a9161650c7',
-				name : 'banner'
-			}
-		]
-		if(name_type){
-			search_expression = 'index_type = types_pred.map( (type_pred)=>{return type_pred.name} ).indexOf(name_type)'
-			return_expression = 'types_pred[index_type].id'
-		}
-		else{
-			search_expression = 'index_type = types_pred.map( (type_pred)=>{return type_pred.id} ).indexOf(id_type)'
-			return_expression = 'types_pred[index_type].name'
-		}
-
-		eval( search_expression )
-
-		if(index_type !== -1){
-			return eval( return_expression )
-		}	
-		else{
-			return false;
-		}
-	}
+	}	
 
 	cms_vtex_layout.get_list_objects = ( instance_type,instance_id ) => {
 		//si es HTML
@@ -120,45 +82,9 @@ module.exports = function( cms_vtex_layout ){
 				}
 			})
 
-		let body = response_sync.body.toString(),
-			$ = cheerio.load(body),
-			return_var = []
-
-		if($('.divFieldSetHtmlDataRow').length > 0){
-			$('.divFieldSetHtmlDataRow').each(function(){
-
-				let periods = []
-				if($(this).find('#period').text().trim() != ''){
-					$(this).find('#period .periodDateItens').each(function(){
-						periods.push({
-							from : $(this).attr('datetimefrom'),
-							to : $(this).attr('datetimeto')
-						})
-					})
-				}
-
-				if(instance_type == 'html'){
-					additional = CMSVtex_general.get_html_entities($(this).find('#html a').attr('title'))
-				}
-
-				return_var.push({
-					    name : $(this).find('#contentName textarea').html(),
-					    id : $(this).find('#id').text().trim(),
-					    partner : $(this).find('#partner textarea').html(),
-					    campaign : $(this).find('#partner textarea').html(),
-					    category : $(this).find('#category').text().trim(),
-					    brand : $(this).find('#brand').text().trim(),
-					    source : $(this).find('#source textarea').html(),
-					    keyword : $(this).find('#keyword textarea').html().trim(),
-					    period : periods,
-					    active : ($(this).find('#active input').attr('checked')) ? true : false,
-					    additional : additional
-				})
-			})
-		}
-
-		//res_.end(response_sync.body.toString())
-		return return_var;
+		let body = response_sync.body.toString();
+		
+		return CMSVtex_general.get_content_object( body,instance_type );
 	}
 
 	cms_vtex_layout.get_id_new_layout = ( id_website,id_folder ) => {
@@ -298,7 +224,7 @@ module.exports = function( cms_vtex_layout ){
 			selected_list += placeholder.id + '[:][:][:] -||-' 
 
 			placeholder.controls.map( ( control ) => {
-				selected_list += '-||-' + placeholder.id + '[:]' + cms_vtex_layout.get_type_control( false,control.type ) + '[:]'
+				selected_list += '-||-' + placeholder.id + '[:]' + CMSVtex_general.get_type_control( false,control.type ) + '[:]'
 			
 				if( control.instance ){
 					selected_list += control.instance
@@ -420,7 +346,7 @@ module.exports = function( cms_vtex_layout ){
 				return delete_control;
 			}	
 			else{
-				return 'Lo siente este control no existe, al menos no en este placeholder :('
+				return 'Lo siento este control no existe, al menos no en este placeholder :('
 			}
 		}
 		else{

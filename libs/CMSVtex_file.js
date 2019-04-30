@@ -11,7 +11,7 @@ const path = require('path');
 
 module.exports = function( cms_vtex_file ){
 
-	cms_vtex_file.get_file = ( id,type,ext,dest ) => {
+	cms_vtex_file.get_file = ( id,type,ext,dest,name_img ) => {
 		
 
 		if(type == 'css' || type == 'js' || typeof type === 'undefined'){
@@ -29,7 +29,7 @@ module.exports = function( cms_vtex_file ){
 				}
 			})
 
-			console.log(response_sync)
+			//console.log(response_sync)
 
 			let body = response_sync.body.toString()
 
@@ -42,9 +42,10 @@ module.exports = function( cms_vtex_file ){
 			let dest_exist = fs.existsSync( dest );
 
 			if(dest_exist){
-				console.log('si existe');
+				//console.log('si existe');
 			}
 			else{
+				console.log(dest)
 				console.log('aún no existe');
 				fs.mkdirSync( dest )
 			}
@@ -62,7 +63,7 @@ module.exports = function( cms_vtex_file ){
 	cms_vtex_file.get_list = ( file_type,quantity_files_us ) => {
 		let data = {
 			page : 1,
-			rp : (quantity_files_us) ? quantity_files_us : 200,
+			rp : (quantity_files_us) ? quantity_files_us : 200000000,
 			sortname : "IdArquivo",
 		}
 
