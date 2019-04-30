@@ -59,6 +59,9 @@ module.exports = (function( cms_vtex_general ){
 				if(instance_type.toLowerCase().trim() ==='html'){
 					additional = cms_vtex_general.get_html_entities($(this).find('#html a').attr('title'))
 				}
+				else{
+					additional = ''
+				}
 
 				return_var.push({
 					    name : $(this).find('#contentName textarea').html(),

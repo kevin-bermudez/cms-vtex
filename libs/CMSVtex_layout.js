@@ -83,7 +83,7 @@ module.exports = function( cms_vtex_layout ){
 			})
 
 		let body = response_sync.body.toString();
-		
+
 		return CMSVtex_general.get_content_object( body,instance_type );
 	}
 
@@ -255,10 +255,46 @@ module.exports = function( cms_vtex_layout ){
 
 		let body = response_sync.body.toString();
 
-		return selected_list
+		return selected_list;
 	}
 
-	cms_vtex_layout.add_control = ( layout_id,placeholder_id,name_control,type_control,content_layout_us ) => {
+	cms_vtex_layout.save_config_coleccion = ( id_control,config ) => {
+		let data = {
+			viewPartInstanceId : id_control,
+			layout : config.layout,
+			colCount : config.colCount,
+			itemCount : config.itemCount,
+			showUnavailable : (config.showUnavailable) ? config.showUnavailable : false,
+			isRandomize : (config.isRandomize) ? config.isRandomize : false,
+			isPaged : (config.isPaged) ? config.isPaged : false,
+			contentList : '',
+			contentListInicial : '',
+			isCustomViewPart : 'False',
+
+		}
+		
+		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveControlConfig';
+
+		let response_sync = request('POST',uri_def,{
+			headers : {
+				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+			},
+			body : querystring.stringify(data)
+		})
+
+		let body = response_sync.body.toString();
+
+		if(body != ''){
+			$ = cheerio.load( body );
+			return $('title').text()
+		}
+		else{
+			return true;
+		}
+	}
+
+	cms_vtex_layout.add_control = ( layout_id,placeholder_id,name_control,type_control,content_layout_us,config_shelf ) => {
 		if(content_layout_us){
 			layout = content_layout_us
 		}
@@ -279,7 +315,18 @@ module.exports = function( cms_vtex_layout ){
 			
 			let save_layout = cms_vtex_layout.save_control( layout )
 
-			return save_layout;
+			if(type_control == 'coleccion'){
+				let new_layout_data = cms_vtex_layout.get( layout_id );
+				let index_new_control = new_layout_data.placeholders[placeholder_add_index].controls.map( ( control ) => {
+					return control.name;
+				}).indexOf( name_control );
+
+				return cms_vtex_layout.save_config_coleccion( new_layout_data.placeholders[placeholder_add_index].controls[index_new_control].instance,config_shelf );
+			}
+			else{
+				return save_layout;
+			}
+			
 		}
 		else{
 			return 'Lo siento, este placeholder no existe (al menos no en este layout (?))';
@@ -447,6 +494,25 @@ module.exports = function( cms_vtex_layout ){
 		let body = response_sync.body.toString()
 
 		return (body == '');
+	}
+
+	cms_vtex_layout.save_object_coleccion = ( instance_id,info_new,id_object ) => {
+		//si es HTML
+		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
+		console.log(uri_def)
+		let response_sync = request('GET',uri_def,{
+				headers : {
+					'Cookie' : CMSVtex_general.cookie_vtex,
+					'Content-Type' : 'text/HTML'
+				}
+			})
+
+		let body = response_sync.body.toString();
+
+		//let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id ),
+		//	content_list = []
+		$ = cheerio.load(body)
+		return body
 	}
 
 	cms_vtex_layout.delete_object = ( instance_id,instance_type,id_object ) => {
