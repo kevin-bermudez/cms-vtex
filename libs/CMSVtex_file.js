@@ -28,8 +28,9 @@ module.exports = function( cms_vtex_file ){
 					'Content-Type' : 'text'
 				}
 			})
-
-			//console.log(response_sync)
+			if(response_sync.statusCode > 300){
+				console.log(response_sync)	
+			}
 
 			let body = response_sync.body.toString()
 
@@ -45,8 +46,6 @@ module.exports = function( cms_vtex_file ){
 				//console.log('si existe');
 			}
 			else{
-				console.log(dest)
-				console.log('aún no existe');
 				fs.mkdirSync( dest )
 			}
 
