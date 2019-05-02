@@ -8,7 +8,7 @@ module.exports = (function( cms_vtex_general ){
 	name_file_config = path.join( __dirname,'../config.json' )
 
 	if(fs.existsSync( name_file_config )){
-		file_config = JSON.parse(fs.readFileSync( name_file_config,'utf8' );
+		file_config = JSON.parse(fs.readFileSync( name_file_config,'utf8' ) );
 	}
 	else{
 		file_config = {}
