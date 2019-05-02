@@ -5,7 +5,15 @@ const path = require('path');
 const cheerio = require('cheerio');
 
 module.exports = (function( cms_vtex_general ){
-	file_config = JSON.parse(fs.readFileSync( path.join( __dirname,'../config.json' ),'utf8' ));
+	name_file_config = path.join( __dirname,'../config.json' )
+
+	if(fs.existsSync( name_file_config )){
+		file_config = JSON.parse(fs.readFileSync( name_file_config,'utf8' );
+	}
+	else{
+		file_config = {}
+	}
+	
 
 	//cookie de autenticación
 	cms_vtex_general.cookie_vtex = 'VtexIdclientAutCookie='
