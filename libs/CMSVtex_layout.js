@@ -72,8 +72,14 @@ module.exports = function( cms_vtex_layout ){
 	}	
 
 	cms_vtex_layout.get_list_objects = ( instance_type,instance_id ) => {
-		//si es HTML
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
+		switch(instance_type){
+			case 'html': 
+				uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
+			break;
+			case 'coleccion' : 
+				uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
+			break;
+		}
 
 		let response_sync = request('POST',uri_def,{
 				headers : {
@@ -83,8 +89,26 @@ module.exports = function( cms_vtex_layout ){
 			})
 
 		let body = response_sync.body.toString();
+		let $ = cheerio.load(body);
 
-		return CMSVtex_general.get_content_object( body,instance_type );
+		switch(instance_type){
+			case 'html': 
+				var_return = CMSVtex_general.get_content_object( body,instance_type );
+			break;
+			case 'coleccion' : 
+				var_return = {
+					layout : $('#layout option:selected').attr('value').trim(),
+					colCount : $('#colCount').attr('value'),
+					itemCount : $('#itemCount').attr('value'),
+					isRandomize : (typeof $('#isRandomize').attr('checked') != 'undefined'),
+					showUnavailable : (typeof $('#showUnavailable').attr('checked') != 'undefined'),
+					isPaged : (typeof $('#isPaged').attr('checked') != 'undefined'),
+					objects : CMSVtex_general.get_content_object( body,instance_type )
+				}	
+			break;
+		}
+
+		return var_return;
 	}
 
 	cms_vtex_layout.get_id_new_layout = ( id_website,id_folder ) => {
@@ -254,24 +278,60 @@ module.exports = function( cms_vtex_layout ){
 		})
 
 		let body = response_sync.body.toString();
-
-		return selected_list;
+		let $ = cheerio.load(body)
+		//console.log(body)
+		return ($('title').text() == 'VTEX ID Authentication') ? true : $('title').text();
 	}
 
-	cms_vtex_layout.save_config_coleccion = ( id_control,config ) => {
+	cms_vtex_layout.save_config_coleccion = ( id_control,config,update,delete_ ) => {
+		if(update){
+			console.log('yes update')
+			let control_data = cms_vtex_layout.get_list_objects( 'coleccion',id_control );
+
+			let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',id_control )
+
+			layout = (config.layout) ? config.layout : control_data.layout
+			colCount = control_data.colCount
+			itemCount = control_data.itemCount
+			default_showUnavailable = control_data.showUnavailable
+			default_isRandomize = control_data.isRandomize
+			default_isPaged = control_data.isPaged
+
+			if(delete_){
+				default_contentList = JSON.stringify(cms_vtex_layout.generate_content_list_coleccion( config,id_control ))
+			}
+			else{
+				default_contentList = JSON.stringify(cms_vtex_layout.generate_content_list_coleccion( actual_objects,id_control ))
+			}
+				
+		}
+		else{
+			layout = config.layout
+			colCount = config.colCount
+			itemCount = config.itemCount
+			default_showUnavailable = false
+			default_isRandomize = false
+			default_isPaged = false
+			default_contentList = ''
+		}
+
 		let data = {
 			viewPartInstanceId : id_control,
-			layout : config.layout,
-			colCount : config.colCount,
-			itemCount : config.itemCount,
-			showUnavailable : (config.showUnavailable) ? config.showUnavailable : false,
-			isRandomize : (config.isRandomize) ? config.isRandomize : false,
-			isPaged : (config.isPaged) ? config.isPaged : false,
-			contentList : '',
-			contentListInicial : '',
+			FormShelfConfigId : '',
+			layout,
+			colCount,
+			itemCount,
+			showUnavailable : (config.showUnavailable) ? config.showUnavailable : default_showUnavailable,
+			isRandomize : (config.isRandomize) ? config.isRandomize : default_isRandomize,
+			isPaged : (config.isPaged) ? config.isPaged : default_isPaged,
+			//totalRows : (config.totalRows) ? config.totalRows : 1,
+			contentList : (config.contentList) ? config.contentList : default_contentList,
+			contentListInicial : (config.contentListInicial) ? config.contentListInicial : default_contentList,
 			isCustomViewPart : 'False',
 
 		}
+
+		//console.log('data save is',data)
 		
 		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveControlConfig';
 
@@ -333,6 +393,23 @@ module.exports = function( cms_vtex_layout ){
 		}
 	}
 
+	cms_vtex_layout.update_control_coleccion = ( layout_id,placeholder_id,id_control,config ) => {
+		if(config.name){
+			result_rename = cms_vtex_layout.rename_control( layout_id,placeholder_id,id_control,config.name );
+			delete config.name
+		}
+
+		if(JSON.stringify(config) == '{}'){
+			if(typeof result_rename != 'undefined') return result_rename;
+			else return false;
+		}
+		else{
+			return cms_vtex_layout.save_config_coleccion( id_control,config,true );
+		}
+		//
+
+	}
+
 	cms_vtex_layout.rename_control = ( layout_id,placeholder_id,id_control,name_control,content_layout_us ) => {
 		if(content_layout_us){
 			layout = content_layout_us
@@ -350,7 +427,7 @@ module.exports = function( cms_vtex_layout ){
 				return control.instance
 			}).indexOf( id_control )
 
-			console.log('placeholder is',layout.placeholders[placeholder_delete_index])
+			//console.log('placeholder is',layout.placeholders[placeholder_delete_index])
 
 			if( index_control_delete !== -1 ){
 				layout.placeholders[placeholder_delete_index].controls[index_control_delete].name = name_control
@@ -384,7 +461,7 @@ module.exports = function( cms_vtex_layout ){
 				return control.instance
 			}).indexOf( id_control )
 
-			console.log('placeholder is',layout.placeholders[placeholder_delete_index])
+			//console.log('placeholder is',layout.placeholders[placeholder_delete_index])
 
 			if( index_control_delete !== -1 ){
 				layout.placeholders[placeholder_delete_index].controls.splice(index_control_delete,1)
@@ -496,23 +573,116 @@ module.exports = function( cms_vtex_layout ){
 		return (body == '');
 	}
 
-	cms_vtex_layout.save_object_coleccion = ( instance_id,info_new,id_object ) => {
-		//si es HTML
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
-		console.log(uri_def)
-		let response_sync = request('GET',uri_def,{
-				headers : {
-					'Cookie' : CMSVtex_general.cookie_vtex,
-					'Content-Type' : 'text/HTML'
-				}
+	cms_vtex_layout.generate_content_list_coleccion = ( actual_objects,instance_id,id_object ) => {
+		actual_objects_length = actual_objects.objects.length,
+		shelf_content_list = []
+		console.log('generate list',actual_objects)
+		for(let index = 0;index < actual_objects_length;index++){
+			shelf_content_list.push({
+				ViewPartInstanceId : instance_id,
+				Indice : index,
+				ContentName : CMSVtex_general.get_html_entities(actual_objects.objects[index].name),
+				Partner : actual_objects.objects[index].partner,
+				Campaign : actual_objects.objects[index].campaign,
+				Category : actual_objects.objects[index].category,
+				Brand : actual_objects.objects[index].brand,
+				Source : actual_objects.objects[index].source,
+				Keyword : actual_objects.objects[index].keyword,
+				Periods : actual_objects.objects[index].period,
+				Active : (actual_objects.objects[index].active),
+				ProductCluster : (actual_objects.objects[index].additional.ProductCluster) ? actual_objects.objects[index].additional.ProductCluster :'',
+				SearchQueryString : actual_objects.objects[index].additional.queryString,
+				Id : actual_objects.objects[index].id
 			})
 
-		let body = response_sync.body.toString();
+			//console.log('el add is',actual_objects.objects[index].additional)
+			if(id_object){
+				if(typeof initial_content === 'undefined') initial_content_list = []
+				initial_content_list.push(shelf_content_list[shelf_content_list.length - 1])
+			}
+		}
 
-		//let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id ),
-		//	content_list = []
-		$ = cheerio.load(body)
-		return body
+		return shelf_content_list;
+	}
+
+	cms_vtex_layout.save_object_coleccion = ( instance_id,info_new,id_object ) => {
+		let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id ),
+			shelf_content_list = cms_vtex_layout.generate_content_list_coleccion( actual_objects,instance_id,id_object )
+		
+
+		if(!id_object){
+			shelf_content_list.push({
+				ViewPartInstanceId : instance_id,
+				Indice : actual_objects.objects.length,
+				ContentName : (info_new.ContentName) ? CMSVtex_general.get_html_entities(info_new.ContentName) : '',
+				Partner : (info_new.partner) ? info_new.partner : '',
+				Campaign : (info_new.campaign) ? info_new.campaign : '',
+				Category : (info_new.category) ? info_new.category : '',
+				Brand : (info_new.brand) ? info_new.brand : '',
+				Source : (info_new.source) ? info_new.source : '',
+				Keyword : (info_new.keyword) ? info_new.keyword : '',
+				Periods : (info_new.periods) ? info_new.periods : [],
+				Active : (info_new.active) ? 'True' : 'False',
+				ProductCluster : (info_new.ProductCluster) ? info_new.ProductCluster : '',
+				SearchQueryString : (info_new.SearchQueryString) ? info_new.SearchQueryString : ''
+			})
+
+			delete actual_objects.objects;
+			//actual_objects.totalRows = actual_objects_length + 1
+			actual_objects.contentList = JSON.stringify(shelf_content_list)
+			actual_objects.contentListInicial = (typeof initial_content_list != 'undefined') ? JSON.stringify(initial_content_list) : ''
+
+			return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects )
+		}
+		else{
+			//console.log(actual_objects.objects)
+			let index_object_actual = actual_objects.objects.map( (actual_object) => {
+				return actual_object.id
+			}).indexOf( id_object )
+			
+			if(index_object_actual === -1){
+				return 'este objeto no existe, paila :\'(';
+			}
+			else{
+				if(actual_objects.objects[index_object_actual].additional.ProductCluster){
+					default_productoCluster = actual_objects.objects[index_object_actual].additional.ProductCluster.id
+				}
+				else{
+					default_productoCluster = ''
+				}
+				console.log('el index encontrado es',index_object_actual)
+				shelf_content_list[index_object_actual] = {
+					ViewPartInstanceId : instance_id,
+					Indice : index_object_actual,
+					ContentName : (info_new.ContentName) ? info_new.ContentName : CMSVtex_general.get_html_entities(actual_objects.objects[index_object_actual].name),
+					Partner : (info_new.partner) ? info_new.partner : actual_objects.objects[index_object_actual].partner,
+					Campaign : (info_new.campaign) ? info_new.campaign : actual_objects.objects[index_object_actual].campaign,
+					Category : (info_new.category) ? info_new.category : actual_objects.objects[index_object_actual].category,
+					Brand : (info_new.brand) ? info_new.brand : actual_objects.objects[index_object_actual].brand,
+					Source : (info_new.source) ? info_new.source : actual_objects.objects[index_object_actual].source,
+					Keyword : (info_new.keyword) ? info_new.keyword : actual_objects.objects[index_object_actual].keyword,
+					Periods : (info_new.periods) ? info_new.periods : actual_objects.objects[index_object_actual].period,
+					Active : (typeof info_new.active !== 'undefined') ? info_new.active : actual_objects.objects[index_object_actual].active,
+					ProductCluster : (info_new.ProductCluster) ? info_new.ProductCluster : default_productoCluster,
+					SearchQueryString : (info_new.SearchQueryString) ? info_new.SearchQueryString : actual_objects.objects[index_object_actual].additional.queryString,
+					Id : actual_objects.objects[index_object_actual].id
+				}
+
+				console.log(shelf_content_list)
+
+				delete actual_objects.objects;
+				//actual_objects.totalRows = actual_objects_length + 1
+				actual_objects.contentList = JSON.stringify(shelf_content_list)
+				actual_objects.contentListInicial = JSON.stringify(initial_content_list)
+
+				return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects )
+			}
+
+		}
+
+		//return cms_vtex_layout.get_list_objects( 'coleccion',instance_id );
+		
+		//return body
 	}
 
 	cms_vtex_layout.delete_object = ( instance_id,instance_type,id_object ) => {
@@ -586,6 +756,25 @@ module.exports = function( cms_vtex_layout ){
 		let body = response_sync.body.toString()
 
 		return (body == '') ? true : body;
+	}
+
+	cms_vtex_layout.delete_object_coleccion = ( instance_id,id_object ) => {
+		let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id );
+
+		let index_object = actual_objects.objects.map( ( actual_object ) => {
+			return actual_object.id;
+		}).indexOf( id_object );
+
+		if(index_object === -1){
+			return 'Este objeto no existe, al menos no en esta instancia (?)';
+		}
+		else{
+			actual_objects.objects.splice( index_object,1 );
+			//console.log(actual_objects.objects)
+			return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects,true,true )
+		}
+
+		//
 	}
 
 	return cms_vtex_layout;

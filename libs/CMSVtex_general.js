@@ -41,8 +41,8 @@ module.exports = (function( cms_vtex_general ){
 		let $ = cheerio.load(body),
 			return_var = []
 		
-		if($('.divFieldSetHtmlDataRow').length > 0){
-			$('.divFieldSetHtmlDataRow').each(function(){
+		if($('.divFieldSetHtmlDataRow,.divFieldSetDataRow').length > 0){
+			$('.divFieldSetHtmlDataRow,.divFieldSetDataRow').each(function(){
 
 				let periods = []
 				if($(this).find('#period').text().trim() != ''){
@@ -60,7 +60,16 @@ module.exports = (function( cms_vtex_general ){
 					additional = cms_vtex_general.get_html_entities($(this).find('#html a').attr('title'))
 				}
 				else{
-					additional = ''
+					additional = {
+						queryString : $(this).find('#queryString textarea').html().trim(),
+					}
+
+					if($(this).find('#productCluster a').html().trim() != ''){
+						additional.productCluster = {
+							id : $(this).find('#productCluster a').html().trim(),
+							name : $(this).find('#productCluster a').attr('title')
+						}
+					}
 				}
 
 				return_var.push({
