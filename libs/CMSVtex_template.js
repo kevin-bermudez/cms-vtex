@@ -18,7 +18,7 @@ module.exports = function( cms_vtex_template ){
 	 * @desc Obtiene una lista de templates,sub templates o shelf templates.
 	 * @param {Boolean} [sub_templates] Si se requier obtener los sub-templates.
 	 * @param {Boolean} [shelf_template] Si se requier obtener los shelf-templates, si este se pasa true sub_templates debe ser false.
-	 * @return {Object} Con toda la información del layout incluidos los placeholders, controles y objetos del mismo
+	 * @return {Object[]} Con toda la información de los templates incluidos id,nombre y html
 	 */
 	cms_vtex_template.get = ( sub_templates,shelf_template ) => {
 		let sub_templates_def = (sub_templates) ? 1 : 0,
@@ -58,11 +58,26 @@ module.exports = function( cms_vtex_template ){
 		return return_var	
 	}
 
+	/**
+	 * @method get_sub_templates
+	 * @desc Obtiene una lista de sub templates.
+	 * @return {Object[]} Con toda la información de los sub templates incluidos id,nombre y html
+	 */
 	cms_vtex_template.get_sub_templates = () =>{return cms_vtex_template.get( true )}
 
+	/**
+	 * @method get_shelf_templates
+	 * @desc Obtiene una lista de shelf templates.
+	 * @return {Object[]} Con toda la información de los shelf templates incluidos id,nombre y html
+	 */
 	cms_vtex_template.get_shelf_templates = () => { return cms_vtex_template.get( false,true )}
 
-	cms_vtex_template.get_template = ( id_template,shelf,html_full ) => {
+	/**
+	 * @method get_template
+	 * @desc Obtiene una lista de shelf templates.
+	 * @return {Object[]} Con toda la información de los shelf templates incluidos id,nombre y html
+	 */
+	cms_vtex_template.get_template = ( id_template,shelf ) => {
 		
 		if(shelf){
 			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/ShelfTemplateContent?ShelfTemplateId=' + id_template
@@ -82,20 +97,16 @@ module.exports = function( cms_vtex_template ){
 		let body = response_sync.body.toString(),
 			$ = cheerio.load(body)
 
-		if(html_full){
-			return body;
-		}
-		else{
-			let $ = cheerio.load(body),
-				info_template = {
-					id : id_template,
-					name : $('input#templateName').attr('value'),
-					html : CMSVtex_general.get_html_entities($('textarea').html()),
-					//placeholders : xml_object
-				}
-		
-			return info_template
-		}	
+	
+		let $ = cheerio.load(body),
+			info_template = {
+				id : id_template,
+				name : $('input#templateName').attr('value'),
+				html : CMSVtex_general.get_html_entities($('textarea').html()),
+				//placeholders : xml_object
+			}
+	
+		return info_template	
 	}
 
 	cms_vtex_template.get_template_by_name = ( name_template,html_local ) => {

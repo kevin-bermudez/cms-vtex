@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>
-      Home - Documentation
+      template - Documentation
   </title>
 
   <link href="https://www.braintreepayments.com/images/favicon-ccda0b14.png" rel="icon" type="image/png">
@@ -49,14 +49,14 @@
 
   <div class="top-nav-wrapper">
     <ul>
-      <li  class="active" >
+      <li >
         <a href="index.html">
           
-          
-            <svg fill="#0095dd" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <svg fill="#6D6D6D" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
               <path d="M0 0h24v24H0z" fill="none"/>
             </svg>
+          
           
         </a>
       </li>
@@ -78,32 +78,336 @@
 
   <div id="main">
     
+      <h1 class="page-title">
+        template
+      </h1>
+    
 
+    
+
+<section>
+  <header>
     
       
+        
+  </header>
+
+  <article>
+    <div class="container-overview">
+      
+        
+          <div class="description">
+            <p>Este módulo es util para manipular templates,sub-templates,shelf templates del CMS de vtex</p>
+          </div>
+        
+
+        
+          
 
 
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+  
+
+  
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since">
+      <ul class="dummy">
+        <li>
+          1.0.0
+        </li>
+      </ul>
+    </dd>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source">
+      <ul class="dummy">
+        <li>
+          <a href="CMSVtex_template.js.html">CMSVtex_template.js</a>, <a href="CMSVtex_template.js.html#line10">line 10</a>
+        </li>
+      </ul>
+    </dd>
+  
+
+  
+
+  
+
+  
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      
+    </div>
 
     
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+      <h3 class="subsection-title">Methods</h3>
+
+      
+        
+
+
+  
+
+  <span class='name-container'>
+    <a class="link-icon" href="#~get">
+      <svg height="20" width="20" style="fill: black;">
+        <use xlink:href="#linkIcon"></use>
+      </svg>
+    </a>
+    <h4 class="name" id="~get">
+      <span class="type-signature">(inner) </span>get<span class="signature">(sub_templates<span class="signature-attributes">opt</span>, shelf_template<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;Object>}</span>
+    </h4>
+  </span>
+
+  
+
+
+
+  <div class="description">
+    <p>Obtiene una lista de templates,sub templates o shelf templates.</p>
+  </div>
+
+
+
+
+
+
+
+  <h5>Parameters:</h5>
+  
+
+<table class="params">
+  <thead>
+    <tr>
+      
+        <th>Name</th>
+      
+
+      <th>Type</th>
+
+      
+        <th>Attributes</th>
+      
 
       
 
+      <th class="last">Description</th>
+    </tr>
+  </thead>
 
-  <section class="readme">
-    <article>
-      <h2>Prerrequisitos</h2><ol>
-<li>Tener acceso a este repositorio por SSH.</li>
-</ol>
-<h2>�C�mo instalar?</h2><ol>
-<li>Ubicarse en el proyecto desde la terminal.</li>
-<li>Escribir en la terminal: npm install --save git+ssh:<a href="mailto://git@bitbucket.org">//git@bitbucket.org</a>:kevin_chef/cms-vtex-chef.git
-sinc-cms-vtex-chef</li>
-</ol>
-    </article>
-  </section>
+  <tbody>
+    
+      <tr>
+        
+          <td class="name"><code>sub_templates</code></td>
+        
 
+        <td class="type">
+          
+            
+    <span class="param-type">
+      Boolean
+    </span>
 
     
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Si se requier obtener los sub-templates.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>shelf_template</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      Boolean
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Si se requier obtener los shelf-templates, si este se pasa true sub_templates debe ser false.</p>
+          
+        </td>
+      </tr>
+
+    
+  </tbody>
+</table>
+
+
+
+
+
+<dl class="details">
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source">
+      <ul class="dummy">
+        <li>
+          <a href="CMSVtex_template.js.html">CMSVtex_template.js</a>, <a href="CMSVtex_template.js.html#line16">line 16</a>
+        </li>
+      </ul>
+    </dd>
+  
+
+  
+
+  
+
+  
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+    
+
+    
+
+    
+  </article>
+</section>
+
+
 
 
   </div>

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>
-      CMSVtex_folder.js - Documentation
+      CMSVtex_template.js - Documentation
   </title>
 
   <link href="https://www.braintreepayments.com/images/favicon-ccda0b14.png" rel="icon" type="image/png">
@@ -81,7 +81,7 @@
   <div id="main">
     
       <h1 class="page-title">
-        CMSVtex_folder.js
+        CMSVtex_template.js
       </h1>
     
 
@@ -92,186 +92,176 @@
   <article>
     <pre class="prettyprint source linenums"><code>//Dependencias
 const request = require('sync-request');
+const request2 = require('request');
 const cheerio = require('cheerio');
-const querystring = require('querystring');
+const crypto = require('crypto');
+const fs = require('fs');
 const CMSVtex_general = require('./CMSVtex_general');
-const CMSVtex_layout = require('./CMSVtex_layout');
+const querystring = require('querystring');
 
 /**
- * Folder.
- * @module folder
+ * Template.
+ * @module template
  * @since 1.0.0
- * @desc Este módulo es util para manipular las carpetas que se encuentran dentro de Sites_and_Channels en el CMS de vtex
- */
-module.exports = function( cms_vtex_folder ){
+ * @desc Este módulo es util para manipular templates,sub-templates,shelf templates del CMS de vtex */
+module.exports = function( cms_vtex_template ){
 	/**
 	 * @method get
-	 * @desc Obtiene la lista completa de folders con sus layouts correspondientes hijos de un folder determinado
-	 * @param {string} website Id del website al que pertenece el folder padre.
-	 * @param {string} folder Id del folder del que se quiere obtener la información.
-	 * @return {Object[]} Array con los folders y layouts de un folder padre
+	 * @desc Obtiene una lista de templates,sub templates o shelf templates.
+	 * @param {Boolean} [sub_templates] Si se requier obtener los sub-templates.
+	 * @param {Boolean} [shelf_template] Si se requier obtener los shelf-templates, si este se pasa true sub_templates debe ser false.
+	 * @return {Object[]} Con toda la información de los templates incluid id,nombre y html
 	 */
-	cms_vtex_folder.get = ( website,folder ) => {
-		console.log('start get folder',folder)
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderContentBody?dir=folder:' + website + ':' + folder + '/',
-			id_website = website,
-			is_root = root
+	cms_vtex_template.get = ( sub_templates,shelf_template ) => {
+		let sub_templates_def = (sub_templates) ? 1 : 0,
+			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetTemplateList?type='
 
+			if(shelf_template){
+				uri_def += 'shelfTemplate'
+			}
+			else{
+				uri_def += 'viewTemplate&amp;IsSub=' + sub_templates_def
+			}
 
-		let response_sync = request('POST', uri_def, {
-			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
-				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
-			},
-		});
-
-		let body = response_sync.body.toString(),
-			$ = cheerio.load(body),
-			name_split = $('.jqueryFileTree h3').text().split('/'),
-			return_var = {
-				id_website : website,
-				id_folder : folder
-			},
-			c_directories = $('.jqueryFileTreeBody li.directory').length
-
-		if(name_split[name_split.length - 1] == ''){
-			return_var.root = true
-			return_var.name = name_split[0]
-		}
-		else{
-			return_var.root = false
-			return_var.name = name_split[name_split.length - 1]
-		}
-
-		if(c_directories > 0){
-			return_var.folders = []
-
-			$('.jqueryFileTreeBody li.directory').each(function(){
-				let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
-				console.log(id_folder_tmp)
-				return_var.folders.push(cms_vtex_folder.get( website,id_folder_tmp ))
-			})
-
-			
-		}
-		
-		if($('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
-			return_var.layouts = []
-			$('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').each(function(){
-				let layout_tmp = CMSVtex_layout.get( $(this).find('.IconDel').attr('href').split('layoutId=')[1] );
-				console.log(layout_tmp)
-				return_var.layouts.push(layout_tmp);
-			})
-		}
-
-		console.log('end get folder',folder);
-		return return_var;
-	}
-
-	cms_vtex_folder.get_id_new_folder = ( website,folder_parent ) => {
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/AddFolder?siteId=' + website + '&amp;folderParentId=' + folder_parent
-
-		let response_sync = request('GET',uri_def,{
+		let response_sync = request('GET',uri_def,
+		{
 			headers : {
 				'Cookie' : CMSVtex_general.cookie_vtex,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			}
 		})
+
+		let body = response_sync.body.toString(),
+			$ = cheerio.load(body),
+			return_var = []
+			
+
+		let $ = cheerio.load(body),
+			return_var = []
+		$('.jqueryFileTreeBody li').each(function(){
+			//let quick_return = cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] )
+
+			return_var.push({
+				id : $(this).find('a').attr('href').split('=')[1],
+				name : $(this).find('div').text(),
+				html : (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
+			})
+		})	
+		return return_var	
+	}
+
+	cms_vtex_template.get_sub_templates = () =>{return cms_vtex_template.get( true )}
+
+	cms_vtex_template.get_shelf_templates = () => { return cms_vtex_template.get( false,true )}
+
+	cms_vtex_template.get_template = ( id_template,shelf,html_full ) => {
+		
+		if(shelf){
+			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/ShelfTemplateContent?ShelfTemplateId=' + id_template
+		}
+		else{
+			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/TemplateContent?templateId=' + id_template
+		}
+		
+		
+		let response_sync = request('GET',uri_def,{
+				headers : {
+					'Cookie' : CMSVtex_general.cookie_vtex,
+					'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+				}
+			})
 
 		let body = response_sync.body.toString(),
 			$ = cheerio.load(body)
 
-		return $('#folderId').attr('value')
-		//return body;
-	}
-
-	/**
-	 * @method save
-	 * @desc Guarda un folder en el CMS de Vtex
-	 * @param {string} name_folder Nombre del folder nuevo.
-	 * @param {string} website_id Id del website al que pertenecerá el folder.
-	 * @param {string} parent_id Id del folder padre del nuevo folder.
-	 * @param {Object} [options] Objeto con propiedades opcionales para configurar el nuevo folder
-	 * @return {string} Con el mensaje de error generado por Vtex o con un mensaje de éxito que incluye el nombre del nuevo folder.
-	 */
-	cms_vtex_folder.save = ( name_folder,website_id,parent_id,options ) => {
-		/*
-			protocols
-				1 -> HTTP
-				2 -> HTTPS
-				3 -> HTTP e HTTPS
-			cacheTypes
-				0 -> No cache
-				1 -> Local
-				2 -> Remote
-				3 -> Local and Remote
-			if(requiresAuthentication)
-				protocols = 2
-				cacheTypes = 0
-		*/
-
-		let data = {
-			folderName: name_folder, //50 ni primer ni último caracter pueden ser @ mínimo 2 caracteres
-			defaultMarketingContext: '', //100
-			defaultSearchContext: '', //100
-			protocols: "2",
-			cacheTypes : "2",
-			requiresAuthentication : '',
-			siteGuid : website_id,
-			parentGuid : parent_id
-		};
-
-		if( options ){
-			if( options.defaultMarketingContext ){
-				data.defaultMarketingContext = options.defaultMarketingContext
-			}
-
-			if( options.defaultSearchContext ){
-				data.defaultSearchContext = options.defaultSearchContext
-			}
-
-			if( options.protocols ){
-				data.protocols = options.protocols
-			}
-
-			if( options.cacheTypes ){
-				data.cacheTypes = options.cacheTypes
-			}
-
-			if( options.requiresAuthentication ){
-				data.requiresAuthentication = options.requiresAuthentication
-			}
-
-			if( options.isPersisted ){
-				data.isPersisted = options.isPersisted
-			}
-
-			if(options.folderId){
-				data.folderId = options.folderId
-				data.isPersisted = 'True'
-			}
-			else{
-				data.folderId = cms_vtex_folder.get_id_new_folder( website_id,parent_id )
-				data.isPersisted = 'False'
-			}
+		if(html_full){
+			return body;
 		}
 		else{
-			data.folderId = cms_vtex_folder.get_id_new_folder( website_id,parent_id )
-			data.isPersisted = 'False'
+			let $ = cheerio.load(body),
+				info_template = {
+					id : id_template,
+					name : $('input#templateName').attr('value'),
+					html : CMSVtex_general.get_html_entities($('textarea').html()),
+					//placeholders : xml_object
+				}
+		
+			return info_template
+		}	
+	}
+
+	cms_vtex_template.get_template_by_name = ( name_template,html_local ) => {
+		let all_templates = JSON.parse(fs.readFileSync('list-templates.json', 'utf8')),
+		//let all_templates = cms_vtex_template.get(),
+			index_template = all_templates.map(( template ) => {
+				return template.name.toLowerCase()
+			}).indexOf(name_template.toLowerCase())
+
+		if(index_template !== -1){
+			return_var = all_templates[index_template]
+			if(html_local){
+				return_var.html = cms_vtex_template.get_html_local( all_templates[index_template].name )
+			}
 		}
 
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/FolderCreate'
+		return return_var
+		
+	}
 
+	cms_vtex_template.get_html_local = ( name_template ) => {
+		let path_template = CMSVtex_general.url_src + '/templates/' + name_template + '.html',
+			template_exist = fs.existsSync( path_template )
+
+		if(template_exist){
+			let content = fs.readFileSync( path_template,'utf8' );
+
+			return content;
+		}
+		else{
+			return false;
+		}
+
+
+	}
+
+	cms_vtex_template.get_new_template_id = (templatename) => crypto.createHash('md5').update(templatename).digest('hex')
+
+	cms_vtex_template.save_template = ( name_template,sub_template_us,content,action_form,id_template,original_content_us,shelf_template,class_shelf,round_corners ) => {
+		let sub_template = (sub_template_us) ? true : false;
+		let original_content = (original_content_us) ? original_content_us : '';
+
+		if(action_form == 'Save'){
+			id_template = cms_vtex_template.get_new_template_id(name_template);
+			original_html = ''
+		}
+
+		let data_form = {
+			template : content,
+			isSub : sub_template,
+			templateId : id_template,
+			actionForm : action_form,
+			textConfirm: 'sim',
+			originalTemplate : original_content,
+			templateName : name_template
+		}
+
+		if(shelf_template){
+			data_form.templateCssClass = class_shelf
+			data_form.roundCorners = round_corners
+		}
+
+		uri_def = (shelf_template) ? CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveShelfTemplate' : CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveTemplate'
+		console.log('uri def is',uri_def)
 		let response_sync = request('POST',uri_def,{
 			headers : {
 				'Cookie' : CMSVtex_general.cookie_vtex,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
-			body : querystring.stringify( data )
+			body : querystring.stringify(data_form)
 		})
 
 		let body = response_sync.body.toString();
-
+		console.log(body)
 		if(body.indexOf('&lt;applicationexceptionobject>{') !== -1){
 			const x = body.indexOf('&lt;applicationexceptionobject>') + 28
 			const y = body.indexOf('&lt;/applicationexceptionobject>')
@@ -279,61 +269,68 @@ module.exports = function( cms_vtex_folder ){
 
 			return {
 				error : true,
-				folder : name_folder,
+				template : name_template,
 				error : obj.message
 			}
 		}	
 		else{
-			return 'success add folder :'  + name_folder;
+			return 'success ' + action_form + ': ' + name_template;
 		}
 	}
 
-	/**
-	 * @method delete
-	 * @desc Elimina un folder en el CMS de Vtex
-	 * @param {string} id_website Id del website al que pertenece el folder.
-	 * @param {string} id_folder Id del folder que se va a eliminar.
-	 * @return {string} Con el mensaje de error generado por Vtex o con un mensaje de éxito que incluye el id del folder eliminado.
-	 */
-	cms_vtex_folder.delete = ( id_website,id_folder ) => {
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderDel'
+	cms_vtex_template.add_template = ( name_template,content ) => {
+		return cms_vtex_template.save_template( name_template,false,content,'Save' );
+	}
 
+	cms_vtex_template.update_template = ( name_template,id_template,content,original_content ) => {
+		return cms_vtex_template.save_template( name_template,false,content,'Update',id_template,original_content );
+	}	
+
+	cms_vtex_template.add_sub_template = ( name_sub_template,content ) => { 
+		return cms_vtex_template.save_template( name_sub_template,true,content,'Save' ) 
+	}
+
+	cms_vtex_template.update_sub_template = ( name_sub_template,id_sub_template,content,original_content ) => {
+		return cms_vtex_template.save_template( name_sub_template,true,content,'Update',id_sub_template,original_content )
+	}
+
+	cms_vtex_template.add_shelf_template = ( name_template,content,templateCssClass,round_corners ) => {
+		return cms_vtex_template.save_template( name_template,false,content,'Save',false,false,true,templateCssClass,round_corners );
+	}
+
+	cms_vtex_template.update_shelf_template = ( name_shelf_template,id_shelf_template,content,original_content,templateCssClass,round_corners ) => {
+		return cms_vtex_template.save_template( name_shelf_template,false,content,'Update',id_shelf_template,original_content,true,templateCssClass,round_corners )
+	}
+
+	cms_vtex_template.delete = ( id_template,shelf_template ) => {
+		/*let info_template = cms_vtex_template.get_template( id_template );
+
+		return info_template;*/
+
+		let uri_def = (shelf_template) ? CMSVtex_general.url_base + 'admin/a/PortalManagement/ShelfTemplateDel' : CMSVtex_general.url_base + '/admin/a/PortalManagement/TemplateDel'
 		let data = {
-			siteId : id_website,
-			folderId : id_folder,
-			textConfirm : 'sim'
+			id : id_template,
+			textConfirm : 'sim',
 		}
 
-		let response_sync = request('POST',uri_def,{
+		let sync_response = request('POST',uri_def,{
 			headers : {
 				'Cookie' : CMSVtex_general.cookie_vtex,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify( data )
 		})
-		//admin/a/PortalManagement/GetFormConfirmFolderDel?folderId=d2f518b11236421bb781e6c024fb1cc0
 
-		let body = response_sync.body.toString()
+		let body = sync_response.body.toString();
 
-		if(body.indexOf('&lt;applicationexceptionobject>{') !== -1){
-			const x = body.indexOf('&lt;applicationexceptionobject>') + 28
-			const y = body.indexOf('&lt;/applicationexceptionobject>')
-			const obj = JSON.parse(body.substr(x, y - x))
-
-			return {
-				error : true,
-				folder : name_folder,
-				error : obj.message
-			}
-		}	
-		else{
-			return 'success delete folder :'  + id_folder;
-		}
-
-		//return body
+		return body;
 	}
 
-	return cms_vtex_folder;
+	cms_vtex_template.delete_shelf_template = ( id_shelf_template ) => {
+		return cms_vtex_template.delete( id_shelf_template,true )
+	}
+
+	return cms_vtex_template;
 }( exports )</code></pre>
   </article>
 </section>
