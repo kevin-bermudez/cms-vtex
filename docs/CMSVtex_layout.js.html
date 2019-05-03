@@ -75,7 +75,7 @@
 
     
 
-    <h3>Modules</h3><ul><li id="file-nav"><a href="module-file.html">file</a><ul class='methods'><li data-type="method" id="file-delete-nav"><a href="module-file.html#~delete">delete</a></li><li data-type="method" id="file-file_exist-nav"><a href="module-file.html#~file_exist">file_exist</a></li><li data-type="method" id="file-get_file-nav"><a href="module-file.html#~get_file">get_file</a></li><li data-type="method" id="file-get_list-nav"><a href="module-file.html#~get_list">get_list</a></li><li data-type="method" id="file-update-nav"><a href="module-file.html#~update">update</a></li><li data-type="method" id="file-upload-nav"><a href="module-file.html#~upload">upload</a></li></ul></li><li id="folder-nav"><a href="module-folder.html">folder</a><ul class='methods'><li data-type="method" id="folder-delete-nav"><a href="module-folder.html#~delete">delete</a></li><li data-type="method" id="folder-get-nav"><a href="module-folder.html#~get">get</a></li><li data-type="method" id="folder-save-nav"><a href="module-folder.html#~save">save</a></li></ul></li><li id="layout-nav"><a href="module-layout.html">layout</a><ul class='methods'><li data-type="method" id="layout-add_control-nav"><a href="module-layout.html#~add_control">add_control</a></li><li data-type="method" id="layout-delete-nav"><a href="module-layout.html#~delete">delete</a></li><li data-type="method" id="layout-delete_control-nav"><a href="module-layout.html#~delete_control">delete_control</a></li><li data-type="method" id="layout-get-nav"><a href="module-layout.html#~get">get</a></li><li data-type="method" id="layout-get_list_objects-nav"><a href="module-layout.html#~get_list_objects">get_list_objects</a></li><li data-type="method" id="layout-rename_control-nav"><a href="module-layout.html#~rename_control">rename_control</a></li><li data-type="method" id="layout-save-nav"><a href="module-layout.html#~save">save</a></li><li data-type="method" id="layout-update_control_coleccion-nav"><a href="module-layout.html#~update_control_coleccion">update_control_coleccion</a></li></ul></li></ul>
+    <h3>Modules</h3><ul><li id="file-nav"><a href="module-file.html">file</a><ul class='methods'><li data-type="method" id="file-delete-nav"><a href="module-file.html#~delete">delete</a></li><li data-type="method" id="file-file_exist-nav"><a href="module-file.html#~file_exist">file_exist</a></li><li data-type="method" id="file-get_file-nav"><a href="module-file.html#~get_file">get_file</a></li><li data-type="method" id="file-get_list-nav"><a href="module-file.html#~get_list">get_list</a></li><li data-type="method" id="file-update-nav"><a href="module-file.html#~update">update</a></li><li data-type="method" id="file-upload-nav"><a href="module-file.html#~upload">upload</a></li></ul></li><li id="folder-nav"><a href="module-folder.html">folder</a><ul class='methods'><li data-type="method" id="folder-delete-nav"><a href="module-folder.html#~delete">delete</a></li><li data-type="method" id="folder-get-nav"><a href="module-folder.html#~get">get</a></li><li data-type="method" id="folder-save-nav"><a href="module-folder.html#~save">save</a></li></ul></li><li id="layout-nav"><a href="module-layout.html">layout</a><ul class='methods'><li data-type="method" id="layout-add_control-nav"><a href="module-layout.html#~add_control">add_control</a></li><li data-type="method" id="layout-delete-nav"><a href="module-layout.html#~delete">delete</a></li><li data-type="method" id="layout-delete_control-nav"><a href="module-layout.html#~delete_control">delete_control</a></li><li data-type="method" id="layout-delete_object-nav"><a href="module-layout.html#~delete_object">delete_object</a></li><li data-type="method" id="layout-delete_object_coleccion-nav"><a href="module-layout.html#~delete_object_coleccion">delete_object_coleccion</a></li><li data-type="method" id="layout-get-nav"><a href="module-layout.html#~get">get</a></li><li data-type="method" id="layout-get_list_objects-nav"><a href="module-layout.html#~get_list_objects">get_list_objects</a></li><li data-type="method" id="layout-rename_control-nav"><a href="module-layout.html#~rename_control">rename_control</a></li><li data-type="method" id="layout-save-nav"><a href="module-layout.html#~save">save</a></li><li data-type="method" id="layout-save_object-nav"><a href="module-layout.html#~save_object">save_object</a></li><li data-type="method" id="layout-save_object_coleccion-nav"><a href="module-layout.html#~save_object_coleccion">save_object_coleccion</a></li><li data-type="method" id="layout-update_control_coleccion-nav"><a href="module-layout.html#~update_control_coleccion">update_control_coleccion</a></li></ul></li></ul>
   </nav>
 
   <div id="main">
@@ -632,7 +632,15 @@ module.exports = function( cms_vtex_layout ){
 		}
 	}
 
-
+	/**
+	 * @method save_object
+	 * @desc Guarda un objeto de tipo html cuando se va a crear o modificar.
+	 * @param {string} instance_id Id del control sobre el que se va a guardar el objeto.
+	 * @param {string} instance_type Siempre será "html"
+	 * @param {Object} info_new Información del nueva del objeto.
+	 * @param {string} [id_object] Este parámetro se pasa cuando la operación es de modificación, indicando el id del objeto que se va a modificar.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.save_object = ( instance_id,instance_type,info_new,id_object ) => {
 		let actual_objects = cms_vtex_layout.get_list_objects( instance_type,instance_id ),
 			html_content_list = []
@@ -724,8 +732,9 @@ module.exports = function( cms_vtex_layout ){
 		})
 
 		let body = response_sync.body.toString()
+		let $ = cheerio.load(body)
 
-		return (body == '');
+		return (body == '') ? true : $('title').text().trim();
 	}
 
 	cms_vtex_layout.generate_content_list_coleccion = ( actual_objects,instance_id,id_object ) => {
@@ -760,6 +769,14 @@ module.exports = function( cms_vtex_layout ){
 		return shelf_content_list;
 	}
 
+	/**
+	 * @method save_object_coleccion
+	 * @desc Guarda un objeto de tipo colección cuando se va a crear o modificar.
+	 * @param {string} instance_id Id del control sobre el que se va a guardar el objeto.
+	 * @param {Object} info_new Información nueva del objeto.
+	 * @param {string} [id_object] Este parámetro se pasa cuando la operación es de modificación, indicando el id del objeto que se va a modificar.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.save_object_coleccion = ( instance_id,info_new,id_object ) => {
 		let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id ),
 			shelf_content_list = cms_vtex_layout.generate_content_list_coleccion( actual_objects,instance_id,id_object )
@@ -840,6 +857,14 @@ module.exports = function( cms_vtex_layout ){
 		//return body
 	}
 
+	/**
+	 * @method delete_object
+	 * @desc Elimina un objeto de tipo html perteneciente a un control determinado.
+	 * @param {string} instance_id Id del control al que pertenece el objeto que se va a eliminar.
+	 * @param {string} instance_type Siempre será html.
+	 * @param {string} id_object Id del objeto que se va a eliminar.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.delete_object = ( instance_id,instance_type,id_object ) => {
 		let actual_objects = cms_vtex_layout.get_list_objects( instance_type,instance_id ),
 			html_content_list = [],
@@ -913,6 +938,13 @@ module.exports = function( cms_vtex_layout ){
 		return (body == '') ? true : body;
 	}
 
+	/**
+	 * @method delete_object_coleccion
+	 * @desc Elimina un objeto de tipo colección perteneciente a un control determinado.
+	 * @param {string} instance_id Id del control al que pertenece el objeto que se va a eliminar.
+	 * @param {string} id_object Id del objeto que se va a eliminar.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.delete_object_coleccion = ( instance_id,id_object ) => {
 		let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id );
 
