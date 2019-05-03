@@ -7,8 +7,20 @@ const fs = require('fs');
 const CMSVtex_general = require('./CMSVtex_general');
 const querystring = require('querystring');
 
+/**
+ * Template.
+ * @module template
+ * @since 1.0.0
+ * @desc Este módulo es util para manipular templates,sub-templates,shelf templates del CMS de vtex */
 module.exports = function( cms_vtex_template ){
-	cms_vtex_template.get = ( sub_templates,shelf_template,html_full ) => {
+	/**
+	 * @method get
+	 * @desc Obtiene una lista de templates,sub templates o shelf templates.
+	 * @param {Boolean} [sub_templates] Si se requier obtener los sub-templates.
+	 * @param {Boolean} [shelf_template] Si se requier obtener los shelf-templates, si este se pasa true sub_templates debe ser false.
+	 * @return {Object} Con toda la información del layout incluidos los placeholders, controles y objetos del mismo
+	 */
+	cms_vtex_template.get = ( sub_templates,shelf_template ) => {
 		let sub_templates_def = (sub_templates) ? 1 : 0,
 			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetTemplateList?type='
 
@@ -30,26 +42,20 @@ module.exports = function( cms_vtex_template ){
 		let body = response_sync.body.toString(),
 			$ = cheerio.load(body),
 			return_var = []
-
-		if(html_full){
-			return (body);
-		}
-		else{
 			
 
-			let $ = cheerio.load(body),
-				return_var = []
-			$('.jqueryFileTreeBody li').each(function(){
-				//let quick_return = cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] )
+		let $ = cheerio.load(body),
+			return_var = []
+		$('.jqueryFileTreeBody li').each(function(){
+			//let quick_return = cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] )
 
-				return_var.push({
-					id : $(this).find('a').attr('href').split('=')[1],
-					name : $(this).find('div').text(),
-					html : (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
-				})
-			})	
-			return return_var
-		}	
+			return_var.push({
+				id : $(this).find('a').attr('href').split('=')[1],
+				name : $(this).find('div').text(),
+				html : (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
+			})
+		})	
+		return return_var	
 	}
 
 	cms_vtex_template.get_sub_templates = () =>{return cms_vtex_template.get( true )}
