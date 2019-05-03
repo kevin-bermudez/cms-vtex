@@ -275,7 +275,7 @@ module.exports = function( cms_vtex_template ){
 	 * @desc Elimina un template o sub template o shelf template.
 	 * @param {string} id_template Id del temlate,sub template o shelf template que se va a eliminar.
 	 * @param {Boolean} [shelf_template] Se pasa como true si lo que se quiere eliminar es un shelf template.
-	 * @return {Object|string} Si existe un errror al momento de guardar un shelf template retorna un objeto con las propiedades error:true,nombre del shelf template y descripción del error.
+	 * @return {Boolean|string} Si realiza la eliminación correctamente devuelve true, de lo contrario retorna un mensaje con el error devuelto por Vtex.
 	 */
 	cms_vtex_template.delete = ( id_template,shelf_template ) => {
 		/*let info_template = cms_vtex_template.get_template( id_template );
