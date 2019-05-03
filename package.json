@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs" : "./node_modules/.bin/jsdoc -c jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -25,9 +26,12 @@
     "crypto": "^1.0.1",
     "express": "^4.16.4",
     "html-entities": "^1.2.1",
+    "image-downloader": "^3.4.2",
     "open": "^6.1.0",
-    "sync-request": "^6.1.0",
-    "image-downloader": "^3.4.2"
+    "sync-request": "^6.1.0"
   },
-  "homepage": "https://bitbucket.org/kevin_chef/cms-vtex-chef#readme"
+  "homepage": "https://bitbucket.org/kevin_chef/cms-vtex-chef#readme",
+  "devDependencies": {
+    "jsdoc": "^3.5.5"
+  }
 }

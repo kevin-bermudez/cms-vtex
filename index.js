@@ -11,10 +11,20 @@ const CMSVtex_template = require(path.join(__dirname,'libs/CMSVtex_template'));
 const CMSVtex_login = require(path.join(__dirname,'libs/CMSVtex_login'));
 const CMSVtex_file = require(path.join(__dirname,'libs/CMSVtex_file'));
 
+/**
+ * CMSVtex Chef module.
+ * @module CMS Vtex Chef
+ */
 module.exports = function(){
 	return {
+		website : CMSVtex_website,
+		folder : CMSVtex_folder,
+		layout : CMSVtex_layout,
+		template : CMSVtex_template,
+		login : CMSVtex_login,
+		file : CMSVtex_file
 		//websites
-		get_websites : CMSVtex_website.get,
+		/*get_websites : CMSVtex_website.get,
 		get_website_by_name : CMSVtex_website.get_website_by_name,
 		//templates
 		get_templates : CMSVtex_template.get,
@@ -55,6 +65,6 @@ module.exports = function(){
 		upload_file : CMSVtex_file.upload,
 		delete_file : CMSVtex_file.delete,
 		//login
-		vtex_login : CMSVtex_login
+		vtex_login : CMSVtex_login*/
 	}
 }()
