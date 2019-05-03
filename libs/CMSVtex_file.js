@@ -201,7 +201,7 @@ module.exports = function( cms_vtex_file ){
 	 * @desc Elimina un archivo del CMS de Vtex.
 	 * @param {integer} id_file Id del archivo asignado por el CMS de Vtex.
 	 * @param {file_type} Tipo de archivo a eliminar:css,js o image
-	 * @return {Promise} Devuelve una promesa igual que la del método upload si el archivo existe, de lo contrario una con el mensaje de que el archivo no existe.
+	 * @return {string|boolean} Retorna verdadero o un mensaje con el error arrojado por Vtex.
 	 */
 	cms_vtex_file.delete = ( id_file,file_type ) => {
 		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/DeleteFile?fileId=' + id_file + '&fileType=' + file_type
