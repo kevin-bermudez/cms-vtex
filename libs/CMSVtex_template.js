@@ -42,10 +42,7 @@ module.exports = function( cms_vtex_template ){
 		let body = response_sync.body.toString(),
 			$ = cheerio.load(body),
 			return_var = []
-			
 
-		let $ = cheerio.load(body),
-			return_var = []
 		$('.jqueryFileTreeBody li').each(function(){
 			//let quick_return = cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] )
 
@@ -74,8 +71,10 @@ module.exports = function( cms_vtex_template ){
 
 	/**
 	 * @method get_template
-	 * @desc Obtiene una lista de shelf templates.
-	 * @return {Object[]} Con toda la información de los shelf templates incluidos id,nombre y html
+	 * @desc Obtiene la información de un template específico bien sea: template,sub template o shelf template.
+	 * @param {string} id_template Id de template asignado por el CMS de Vtex del que se requiere la información.
+	 * @param {Boolean} [shelf] Se pasa como true si la información que se requiere corresponde a un shelf template.
+	 * @return {Object} Con la información del template que incluye id,nombre y html
 	 */
 	cms_vtex_template.get_template = ( id_template,shelf ) => {
 		
@@ -94,9 +93,7 @@ module.exports = function( cms_vtex_template ){
 				}
 			})
 
-		let body = response_sync.body.toString(),
-			$ = cheerio.load(body)
-
+		let body = response_sync.body.toString();
 	
 		let $ = cheerio.load(body),
 			info_template = {
@@ -197,30 +194,89 @@ module.exports = function( cms_vtex_template ){
 		}
 	}
 
+	/**
+	 * @method add_template
+	 * @desc Crea un template.
+	 * @param {string} name_template Nombre del nuevo template.
+	 * @param {string} content Html del nuevo template
+	 * @return {Object|string} Si existe un errror al momento de guardar un template retorna un objeto con las propiedades error:true,nombre del template y descripción del error.
+	 */
 	cms_vtex_template.add_template = ( name_template,content ) => {
 		return cms_vtex_template.save_template( name_template,false,content,'Save' );
 	}
 
+	/**
+	 * @method update_template
+	 * @desc Actualiza un template.
+	 * @param {string} name_template Nuevo nombre del template.
+	 * @param {string} id_template Id del template que se va a modificar.
+	 * @param {string} content Nuevo html del template
+	 * @param {string} original_content Html anterior del template
+	 * @return {Object|string} Si existe un errror al momento de guardar un template retorna un objeto con las propiedades error:true,nombre del template y descripción del error.
+	 */
 	cms_vtex_template.update_template = ( name_template,id_template,content,original_content ) => {
 		return cms_vtex_template.save_template( name_template,false,content,'Update',id_template,original_content );
 	}	
 
+	/**
+	 * @method add_sub_template
+	 * @desc Crea un sub template.
+	 * @param {string} name_sub_template Nombre del nuevo sub template.
+	 * @param {string} content Html del nuevo sub template
+	 * @return {Object|string} Si existe un errror al momento de guardar un sub template retorna un objeto con las propiedades error,nombre del sub template y descripción del error.
+	 */
 	cms_vtex_template.add_sub_template = ( name_sub_template,content ) => { 
 		return cms_vtex_template.save_template( name_sub_template,true,content,'Save' ) 
 	}
 
+	/**
+	 * @method update_sub_template
+	 * @desc Actualiza un sub template.
+	 * @param {string} name_sub_template Nuevo nombre del sub template.
+	 * @param {string} id_sub_template Id del sub template que se va a modificar.
+	 * @param {string} content Nuevo html del sub template
+	 * @param {string} original_content Html anterior del sub template
+	 * @return {Object|string} Si existe un errror al momento de guardar un sub template retorna un objeto con las propiedades error:true,nombre del template y descripción del error.
+	 */
 	cms_vtex_template.update_sub_template = ( name_sub_template,id_sub_template,content,original_content ) => {
 		return cms_vtex_template.save_template( name_sub_template,true,content,'Update',id_sub_template,original_content )
 	}
 
+	/**
+	 * @method add_shelf_template
+	 * @desc Crea un sub template.
+	 * @param {string} name_template Nombre del nuevo shelf template.
+	 * @param {string} content Html del nuevo shelf template.
+	 * @param {string} templateCssClass clase css agregada al contenedor de la vitrina
+	 * @param {Boolean} round_corners
+	 * @return {Object|string} Si existe un errror al momento de guardar un shelf template retorna un objeto con las propiedades error,nombre del shelf template y descripción del error.
+	 */
 	cms_vtex_template.add_shelf_template = ( name_template,content,templateCssClass,round_corners ) => {
 		return cms_vtex_template.save_template( name_template,false,content,'Save',false,false,true,templateCssClass,round_corners );
 	}
 
+	/**
+	 * @method update_shelf_template
+	 * @desc Actualiza un shelf template.
+	 * @param {string} name_shelf_template Nuevo nombre del shelf template.
+	 * @param {string} id_shelf_template Id del shelf template que se va a modificar.
+	 * @param {string} content Nuevo html del shelf template
+	 * @param {string} original_content Html anterior del shelf template
+	 * @param {string} templateCssClass Nueva clase css que se agrega a la vitrina que contiene los productos.
+	 * @param {Boolean} round_corners
+	 * @return {Object|string} Si existe un errror al momento de guardar un shelf template retorna un objeto con las propiedades error:true,nombre del shelf template y descripción del error.
+	 */
 	cms_vtex_template.update_shelf_template = ( name_shelf_template,id_shelf_template,content,original_content,templateCssClass,round_corners ) => {
 		return cms_vtex_template.save_template( name_shelf_template,false,content,'Update',id_shelf_template,original_content,true,templateCssClass,round_corners )
 	}
 
+	/**
+	 * @method delete
+	 * @desc Elimina un template o sub template o shelf template.
+	 * @param {string} id_template Id del temlate,sub template o shelf template que se va a eliminar.
+	 * @param {Boolean} [shelf_template] Se pasa como true si lo que se quiere eliminar es un shelf template.
+	 * @return {Object|string} Si existe un errror al momento de guardar un shelf template retorna un objeto con las propiedades error:true,nombre del shelf template y descripción del error.
+	 */
 	cms_vtex_template.delete = ( id_template,shelf_template ) => {
 		/*let info_template = cms_vtex_template.get_template( id_template );
 
@@ -240,13 +296,10 @@ module.exports = function( cms_vtex_template ){
 			body : querystring.stringify( data )
 		})
 
-		let body = sync_response.body.toString();
+		let body = sync_response.body.toString(),
+			$ = cheerio.load(body);
 
-		return body;
-	}
-
-	cms_vtex_template.delete_shelf_template = ( id_shelf_template ) => {
-		return cms_vtex_template.delete( id_shelf_template,true )
+		return ($('title').text().trim() == 'VTEX ID Authentication') ? true : $('title').text();
 	}
 
 	return cms_vtex_template;
