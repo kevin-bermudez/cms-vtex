@@ -10,8 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = function( cms_vtex_file ){
-
-	cms_vtex_file.get_file = ( id,type,ext,dest,name_img ) => {
+	cms_vtex_file.get_file = ( id,type,ext,dest ) => {
 		
 
 		if(type == 'css' || type == 'js' || typeof type === 'undefined'){
