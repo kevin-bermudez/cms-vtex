@@ -456,11 +456,10 @@ module.exports = function( cms_vtex_layout ){
 	/**
 	 * @method rename_control
 	 * @desc Renombra un control, este método no es importante para los controles de colección ya que viene implicita con el método update_control_coleccion de este mismo módulo.
-	 * @param {string} layout_id Id del layout al que pertenece el control de colección que se va a modificar.
-	 * @param {string} placeholder_id Id del placeholder al que pertenece el control de colección que se va a modificar.
-	 * @param {string} id_control Id del control que se va a modificar.
+	 * @param {string} layout_id Id del layout al que pertenece el control que se desea renombrar.
+	 * @param {string} placeholder_id Id del placeholder al que pertenece el control que se desea renombrar.
+	 * @param {string} id_control Id del control que se va a renombrar.
 	 * @param {string} name_control Nuevo nombre para el control.
-	 * @param {Object} config objeto con la información del nuevo control.
 	 * @param {Object} [content_layout_us] Este objecto se le pasa a la función con la información del layout sobre el que se va a agregar el control si se quiere ahorrar tiempo de la misma buscándola.
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
@@ -498,6 +497,15 @@ module.exports = function( cms_vtex_layout ){
 		}
 	}
 
+	/**
+	 * @method delete_control
+	 * @desc Elimina un control de un layout y placeholder determinado.
+	 * @param {string} layout_id Id del layout al que pertenece el control que se va a eliminar.
+	 * @param {string} placeholder_id Id del placeholder al que pertenece el control que se desea eliminar.
+	 * @param {string} id_control Id del control que se va a eliminar.
+	 * @param {Object} [content_layout_us] Este objecto se le pasa a la función con la información del layout sobre el que se va a agregar el control si se quiere ahorrar tiempo de la misma buscándola.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.delete_control = ( layout_id,placeholder_id,id_control,content_layout_us ) => {
 		if(content_layout_us){
 			layout = content_layout_us
@@ -532,6 +540,15 @@ module.exports = function( cms_vtex_layout ){
 		}
 	}
 
+	/**
+	 * @method save_object
+	 * @desc Guarda un objeto de tipo html cuando se va a crear o modificar.
+	 * @param {string} instance_id Id del control sobre el que se va a guardar el objeto.
+	 * @param {string} instance_type Siempre será "html"
+	 * @param {Object} info_new Información del objeto nuevo que se va a crear.
+	 * @param {string} [id_object] Este parámetro se pasa cuando la operación es de modificación, indicando el id del objeto que se va a modificar.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.save_object = ( instance_id,instance_type,info_new,id_object ) => {
 		let actual_objects = cms_vtex_layout.get_list_objects( instance_type,instance_id ),
 			html_content_list = []
@@ -623,8 +640,9 @@ module.exports = function( cms_vtex_layout ){
 		})
 
 		let body = response_sync.body.toString()
+		let $ = cheerio.load(body)
 
-		return (body == '');
+		return (body == '') ? true : $('title').text().trim();
 	}
 
 	cms_vtex_layout.generate_content_list_coleccion = ( actual_objects,instance_id,id_object ) => {
