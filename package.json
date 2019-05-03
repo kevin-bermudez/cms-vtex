@@ -33,6 +33,7 @@
   "homepage": "https://bitbucket.org/kevin_chef/cms-vtex-chef#readme",
   "devDependencies": {
     "jsdoc": "^3.5.5",
+    "jsdoc-template": "git+https://github.com/braintree/jsdoc-template.git",
     "jsdocs": "^1.0.0"
   }
 }

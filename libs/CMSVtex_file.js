@@ -200,7 +200,7 @@ module.exports = function( cms_vtex_file ){
 	 * @method delete
 	 * @desc Elimina un archivo del CMS de Vtex.
 	 * @param {integer} id_file Id del archivo asignado por el CMS de Vtex.
-	 * @param {file_type} Tipo de archivo a eliminar:css,js o image
+	 * @param {string} file_type Tipo de archivo a eliminar:css,js o image
 	 * @return {string|boolean} Retorna verdadero o un mensaje con el error arrojado por Vtex.
 	 */
 	cms_vtex_file.delete = ( id_file,file_type ) => {

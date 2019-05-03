@@ -157,7 +157,7 @@ module.exports = function( cms_vtex_layout ){
 	 * @param {string} template Id del template al que está o estará asociado el layout.
 	 * @param {string} body_class Esta clase es agregada al tag "body" en el html al momento de imprimir el layout
 	 * @param {Object} options Objeto de configuraciones para el layout, cuando se está realizando una actualización se debe pasar la propiedad "layoutId" con el id del layout existente a modificar.
-	 * @return {Object} Retorna un objeto con toda la información del control incluida la lista de objetos asociados, si es una coleccion, los objetos regresarán en un array dentro del objeto, la propiedad se llama "objects"
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
 	cms_vtex_layout.save = ( name_layout,website_id,folder_id,template,body_class,options ) => {
 		let data = {
@@ -215,6 +215,13 @@ module.exports = function( cms_vtex_layout ){
 		return ($('title').text() == 'VTEX ID Authentication') ? true : $('h3').text();
 	}
 
+	/**
+	 * @method delete
+	 * @desc Elimina un layout del CMS de Vtex.
+	 * @param {string} id_website Id del website al que pertenece el layout.
+	 * @param {string} id_layout Id del layout que se quiere eliminar.
+	 * @return {Boolean|string} Retorna true si elimina exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.delete = ( id_website,id_layout ) => {
 		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/LayoutDel'
 
@@ -371,6 +378,16 @@ module.exports = function( cms_vtex_layout ){
 		}
 	}
 
+	/**
+	 * @method add_control
+	 * @desc Agrega un control de un tipo definido a un placeholder determinado.
+	 * @param {string} layout_id Id del layout al que pertenece el placeholder sobre el que se va a agregar el control.
+	 * @param {string} placeholder_id Id del placeholder sobre el que se quiere agregar el control.
+	 * @param {string} name_control Nombre del nuevo control.
+	 * @param {string} type_control Tipo del nuevo control:html o coleccion.
+	 * @param {Object} [content_layout_us] Este objecto se le pasa a la función con la información del layout sobre el que se va a agregar el control si se quiere ahorrar tiempo de la misma buscándola.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.add_control = ( layout_id,placeholder_id,name_control,type_control,content_layout_us,config_shelf ) => {
 		if(content_layout_us){
 			layout = content_layout_us
@@ -410,6 +427,15 @@ module.exports = function( cms_vtex_layout ){
 		}
 	}
 
+	/**
+	 * @method update_control_coleccion
+	 * @desc Agrega un control de un tipo definido a un placeholder determinado.
+	 * @param {string} layout_id Id del layout al que pertenece el control de colección que se va a modificar.
+	 * @param {string} placeholder_id Id del placeholder al que pertenece el control de colección que se va a modificar.
+	 * @param {string} id_control Id del control que se va a modificar.
+	 * @param {Object} config objeto con la información del nuevo control.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX, si el objeto config está vacío retorna false.
+	 */
 	cms_vtex_layout.update_control_coleccion = ( layout_id,placeholder_id,id_control,config ) => {
 		if(config.name){
 			result_rename = cms_vtex_layout.rename_control( layout_id,placeholder_id,id_control,config.name );
@@ -427,6 +453,17 @@ module.exports = function( cms_vtex_layout ){
 
 	}
 
+	/**
+	 * @method rename_control
+	 * @desc Renombra un control, este método no es importante para los controles de colección ya que viene implicita con el método update_control_coleccion de este mismo módulo.
+	 * @param {string} layout_id Id del layout al que pertenece el control de colección que se va a modificar.
+	 * @param {string} placeholder_id Id del placeholder al que pertenece el control de colección que se va a modificar.
+	 * @param {string} id_control Id del control que se va a modificar.
+	 * @param {string} name_control Nuevo nombre para el control.
+	 * @param {Object} config objeto con la información del nuevo control.
+	 * @param {Object} [content_layout_us] Este objecto se le pasa a la función con la información del layout sobre el que se va a agregar el control si se quiere ahorrar tiempo de la misma buscándola.
+	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 */
 	cms_vtex_layout.rename_control = ( layout_id,placeholder_id,id_control,name_control,content_layout_us ) => {
 		if(content_layout_us){
 			layout = content_layout_us
@@ -453,7 +490,7 @@ module.exports = function( cms_vtex_layout ){
 				return rename_control;
 			}	
 			else{
-				return 'Lo siente este control no existe, al menos no en este placeholder :('
+				return 'Lo siento este control no existe, al menos no en este placeholder :('
 			}
 		}
 		else{
