@@ -4,6 +4,12 @@ const fs = require('fs')
 const app = express();
 const path = require('path')
 
+/**
+ * Login.
+ * @module login
+ * @since 1.0.0
+ * @desc Este módulo sirve para obtener la información que va a autenticar todas las peticiones a Vtex.
+*/
 const get_cookie = ( name_cookie,cookies ) => {
 	let cookies_joined = cookies.split(';');
 	let cookies_joined_length = cookies_joined.length;
@@ -28,6 +34,10 @@ const save_cookie = ( cookie ) => {
 
 const open = require('open');
 
+/**
+ * @method
+ * @desc Abre una ventana para realizar el login en Vtex con una cuenta que tenga acceso al admin de una cuenta específica
+*/
 module.exports = function(){
 	//settings
 	app.set('port', process.env.PORT || 2000);

@@ -3,7 +3,19 @@ const request = require('sync-request');
 const cheerio = require('cheerio');
 const CMSVtex_general = require('./CMSVtex_general');
 
+/**
+ * Website.
+ * @module website
+ * @since 1.0.0
+ * @desc Este módulo es útil para obtener los websites asociados a una cuenta o la información de uno específico*/
 module.exports = function( cms_vtex_website ){
+
+	/**
+	 * @method get_website_by_name
+	 * @desc Obtiene la información referente a un website.
+	 * @param {string} website_name Si se requier obtener los sub-templates.
+	 * @return {Object} Con la información de un website nombre,id y id del folder root
+	*/
 	cms_vtex_website.get_website_by_name = ( website_name ) => {
 		//console.log('empezó ejecución')
 		let websites = cms_vtex_website.get();
@@ -15,6 +27,11 @@ module.exports = function( cms_vtex_website ){
 		return websites[website_result_index]
 	}
 
+	/**
+	 * @method get
+	 * @desc Obtiene la lista de los websites de una cuenta Vtex específica.
+	 * @return {Object[]} Con la información de todos los website nombre,id y id del folder root
+	*/
 	cms_vtex_website.get = ( ) => {
 		let data = {
 	        dir: 'sites:/',

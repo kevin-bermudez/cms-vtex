@@ -11,10 +11,6 @@ const CMSVtex_template = require(path.join(__dirname,'libs/CMSVtex_template'));
 const CMSVtex_login = require(path.join(__dirname,'libs/CMSVtex_login'));
 const CMSVtex_file = require(path.join(__dirname,'libs/CMSVtex_file'));
 
-/**
- * CMSVtex Chef module.
- * @module CMS Vtex Chef
- */
 module.exports = function(){
 	return {
 		website : CMSVtex_website,
