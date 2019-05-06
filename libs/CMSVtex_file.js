@@ -46,22 +46,20 @@ module.exports = function( cms_vtex_file ){
 
 	/**
 	 * @method get_file
-	 * @desc Obtiene el contenido de un arhivo desde Vtex si es css o js y lo descarga si es una imagen.
+	 * @desc Obtiene el contenido de un arhivo desde Vtex.
 	 * @param {integer} id Id del archivo asignado desde Vtex.
 	 * @param {string} type El tipo de archivo que quiero obtener:css,js o image.
-	 * @param {string} [ext] Se pasa cuando el tipo de archivo es image, significa su extensión:jpg,png,gif,jpeg,ico
-	 * @param {string} [dest] Se pasa cuando el tipo de archivo es image con la ruta donde se va a descargar la misma
-	 * @return {Object} object Cuando es un archivo js o css devuelve el id del archivo y su contenido, cuando es una imagen devuelve un objeto con la respuesta de descarga de la misma.
+	 * @return {Object} object Cuando es un archivo js o css devuelve el id del archivo y su contenido, cuando es una imagen devuelve un objeto con el id del archivo y un buffer de información que puede ser escrito en un archivo con la función writeFile del módulo fs.
 	 */
-	cms_vtex_file.get_file = ( id,type,ext,dest ) => {
-		if(type == 'css' || type == 'js' || typeof type === 'undefined'){
-			if(isNaN(parseInt(id))){
-				uri_def = CMSVtex_general.url_arquivos + '/' + id
-			}
-			else{
-				uri_def = CMSVtex_general.url_arquivos + '/ids/' + id
-			}
+	cms_vtex_file.get_file = ( id,type ) => {
+		if(isNaN(parseInt(id))){
+			uri_def = CMSVtex_general.url_arquivos + '/' + id
+		}
+		else{
+			uri_def = CMSVtex_general.url_arquivos + '/ids/' + id
+		}
 
+		if(cms_vtex_file.file_exist('ids/' + id)){
 			let response_sync = request('GET',uri_def,{
 				headers : {
 					'Cookie' : CMSVtex_general.cookie_vtex,
@@ -72,31 +70,22 @@ module.exports = function( cms_vtex_file ){
 				console.log(response_sync)	
 			}
 
-			let body = response_sync.body.toString()
-
+			if(type != 'image'){
+				body = response_sync.body.toString();
+			}		
+			else{
+				body = response_sync.body;
+			}
 			return {
 				id,
 				content : body
 			}
 		}
 		else{
-			let dest_exist = fs.existsSync( dest );
-
-			if(dest_exist){
-				//console.log('si existe');
+			return {
+				error : true
 			}
-			else{
-				fs.mkdirSync( dest )
-			}
-
-		  	const options = {
-		  	  url: CMSVtex_general.url_arquivos + '/ids/' + id + '.' + ext,
-		  	  dest: dest
-		  	}			
-			 
-			return image_downloader.image(options);			 
 		}
-
 	}
 
 	cms_vtex_file.get_request_token = () => {
