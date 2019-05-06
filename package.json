@@ -26,13 +26,12 @@
     "crypto": "^1.0.1",
     "express": "^4.16.4",
     "html-entities": "^1.2.1",
-    "image-downloader": "^3.4.2",
     "open": "^6.1.0",
     "sync-request": "^6.1.0"
   },
   "homepage": "https://bitbucket.org/kevin_chef/cms-vtex-chef#readme",
   "devDependencies": {
-    "jsdoc": "^3.5.5",
+    "jsdoc": "^3.6.1",
     "jsdoc-template": "git+https://github.com/braintree/jsdoc-template.git",
     "jsdocs": "^1.0.0"
   }
