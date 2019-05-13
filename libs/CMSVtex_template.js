@@ -42,10 +42,10 @@ module.exports = function( cms_vtex_template ){
 		let body = response_sync.body.toString(),
 			$ = cheerio.load(body),
 			return_var = []
-
+		contador = 0
 		$('.jqueryFileTreeBody li').each(function(){
 			//let quick_return = cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] )
-
+			console.log('guardando un template',(contador++) + ' de ',$('.jqueryFileTreeBody li').length)
 			return_var.push({
 				id : $(this).find('a').attr('href').split('=')[1],
 				name : $(this).find('div').text(),

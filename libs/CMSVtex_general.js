@@ -36,7 +36,8 @@ module.exports = (function( cms_vtex_general ){
 
 	//reemplaza las etiquetas html escapadas en una cadena por su respectiva entidad
 	cms_vtex_general.get_html_entities = ( html_content ) => {
-		return entities.decode(html_content).replace(new RegExp('&amp;', 'g'),'&')
+		return entities.decode(html_content)
+		//.replace(new RegExp('&amp;', 'g'),'&')
 	}
 
 	//reemplaza entidades html por etiquetas escapadas
