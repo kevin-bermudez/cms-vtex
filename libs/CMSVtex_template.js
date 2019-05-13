@@ -167,7 +167,7 @@ module.exports = function( cms_vtex_template ){
 		}
 
 		uri_def = (shelf_template) ? CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveShelfTemplate' : CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveTemplate'
-		console.log('uri def is',uri_def)
+		//console.log('uri def is',uri_def)
 		let response_sync = request('POST',uri_def,{
 			headers : {
 				'Cookie' : CMSVtex_general.cookie_vtex,
