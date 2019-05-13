@@ -177,20 +177,16 @@ module.exports = function( cms_vtex_template ){
 		})
 
 		let body = response_sync.body.toString();
-		console.log(body)
+		//console.log(body)
 		if(body.indexOf('<applicationexceptionobject>{') !== -1){
 			const x = body.indexOf('<applicationexceptionobject>') + 28
 			const y = body.indexOf('</applicationexceptionobject>')
 			const obj = JSON.parse(body.substr(x, y - x))
 
-			return {
-				error : true,
-				template : name_template,
-				error : obj.message
-			}
+			return obj.message
 		}	
 		else{
-			return 'success ' + action_form + ': ' + name_template;
+			return true;
 		}
 	}
 
