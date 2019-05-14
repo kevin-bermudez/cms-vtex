@@ -27,7 +27,8 @@
     "express": "^4.16.4",
     "html-entities": "^1.2.1",
     "open": "^6.1.0",
-    "sync-request": "^6.1.0"
+    "sync-request": "^6.1.0",
+    "request": "^2.88.0"
   },
   "homepage": "https://bitbucket.org/kevin_chef/cms-vtex-chef#readme",
   "devDependencies": {
