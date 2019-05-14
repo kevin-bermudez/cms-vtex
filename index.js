@@ -8,8 +8,9 @@ const CMSVtex_website = require(path.join(__dirname,'libs/CMSVtex_website'));
 const CMSVtex_folder = require(path.join(__dirname,'libs/CMSVtex_folder'));
 const CMSVtex_layout = require(path.join(__dirname,'libs/CMSVtex_layout'));
 const CMSVtex_template = require(path.join(__dirname,'libs/CMSVtex_template'));
-const CMSVtex_login = require(path.join(__dirname,'libs/CMSVtex_login'));
 const CMSVtex_file = require(path.join(__dirname,'libs/CMSVtex_file'));
+
+const CMSVtex_login = require(path.join(__dirname,'libs/CMSVtex_login'));
 
 module.exports = function(){
 	return {

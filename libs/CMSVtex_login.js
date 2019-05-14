@@ -27,9 +27,13 @@ const get_cookie = ( name_cookie,cookies ) => {
 	return real_cookies[name_cookie];
 }
 
-const save_cookie = ( cookie ) => {
-	let cookie_def = {cookie_vtex : cookie};
-	fs.writeFileSync(path.join(__dirname,'../config.json'),JSON.stringify(cookie_def,null,1));
+const save_cookie = ( cookie,dest_config,account ) => {
+	let cookie_def = {
+		cookie_vtex : cookie,
+		auto : dest_auto,
+		account
+	};
+	fs.writeFileSync( dest_config,JSON.stringify(cookie_def,null,1) );
 }
 
 const open = require('open');
@@ -37,8 +41,12 @@ const open = require('open');
 /**
  * @method
  * @desc Abre una ventana para realizar el login en Vtex con una cuenta que tenga acceso al admin de una cuenta específica
+ * @param {string} account Cuenta con la que se identifica el cliente en Vtex.
+ * @param {string} [dest] Ruta del destino donde quedará almacenada la info de configuración del plugin sobre todo información de autenticación.
 */
-module.exports = function(){
+module.exports = function( account,dest ){
+	dest_auto = (dest) ? dest : 'auto'
+
 	//settings
 	app.set('port', process.env.PORT || 2000);
 
@@ -63,8 +71,9 @@ module.exports = function(){
 
 	router.get('/cookie-auth',(req,res) => {
 		let cookie_auth = get_cookie('VtexIdclientAutCookie',req.headers.cookie)
-		console.log("Cookie de autenticación es :  ", cookie_auth);
-		save_cookie(cookie_auth)
+		//console.log("Cookie de autenticación es :  ", cookie_auth);
+		//console.log('dest is',dest_auto)
+		save_cookie(cookie_auth,dest_auto,account)
 		let html = fs.readFileSync(path.join(__dirname,'../templates/cerrar-ventana.html'),'utf8')
 		res.end(html)
 		res.end('obteniendo cookie')
