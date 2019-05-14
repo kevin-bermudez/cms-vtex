@@ -3,7 +3,6 @@ const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
 const CMSVtex_general = require('./CMSVtex_general');
-const image_downloader = require('image-downloader');
 const form_data = require('form-data');
 //var http = require('http');
 const fs = require('fs');
