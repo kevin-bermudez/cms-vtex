@@ -52,7 +52,7 @@ module.exports = function( cms_vtex_template ){
 				name : $(this).find('div').text()
 			})
 
-			if( return_html ){
+			if( !no_return_html ){
 				return_var[return_var.length - 1].html = (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
 			}
 		})	

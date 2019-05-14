@@ -11,11 +11,11 @@ module.exports = (function( cms_vtex_general ){
 	if(exist_config){
 		data_tmp_json = JSON.parse(fs.readFileSync( name_file_config,'utf8' ) )
 
-		if(typeof data_tmp_json.dest_auto === 'undefined' || data_tmp_json.dest_auto == 'auto'){
+		if(typeof data_tmp_json.auto === 'undefined' || data_tmp_json.dest_auto == 'auto'){
 			file_config = data_tmp_json;
 		}
 		else{
-			name_file_def = JSON.parse(fs.readFileSync( name_file_config,'utf8' ) ).dest_auto
+			name_file_def = JSON.parse(fs.readFileSync( name_file_config,'utf8' ) ).auto
 			file_config = JSON.parse( fs.readFileSync( name_file_def,'utf8' ) );
 		}
 
