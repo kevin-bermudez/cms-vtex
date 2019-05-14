@@ -17,10 +17,11 @@ module.exports = function( cms_vtex_template ){
 	 * @method get
 	 * @desc Obtiene una lista de templates,sub templates o shelf templates.
 	 * @param {Boolean} [sub_templates] Si se requier obtener los sub-templates.
-	 * @param {Boolean} [shelf_template] Si se requier obtener los shelf-templates, si este se pasa true sub_templates debe ser false.
+	 * @param {Boolean} [shelf_template] Si se requiere obtener los shelf-templates, si este se pasa true sub_templates debe ser false.
+	 * @param {Boolean} [no_return_html] Si se quiere obtener los templates sin su html
 	 * @return {Object[]} Con toda la información de los templates incluidos id,nombre y html
 	 */
-	cms_vtex_template.get = ( sub_templates,shelf_template ) => {
+	cms_vtex_template.get = ( sub_templates,shelf_template,no_return_html ) => {
 		let sub_templates_def = (sub_templates) ? 1 : 0,
 			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetTemplateList?type='
 
@@ -48,9 +49,12 @@ module.exports = function( cms_vtex_template ){
 			console.log('guardando un template',(contador++) + ' de ',$('.jqueryFileTreeBody li').length)
 			return_var.push({
 				id : $(this).find('a').attr('href').split('=')[1],
-				name : $(this).find('div').text(),
-				html : (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
+				name : $(this).find('div').text()
 			})
+
+			if( return_html ){
+				return_var[return_var.length - 1].html = (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
+			}
 		})	
 		return return_var	
 	}

@@ -136,7 +136,7 @@ const open = require('open');
  * @param {string} account Cuenta con la que se identifica el cliente en Vtex.
  * @param {string} [dest] Ruta del destino donde quedará almacenada la info de configuración del plugin sobre todo información de autenticación.
 */
-module.exports = function( account,dest ){
+module.exports = function( account,dest,redirect ){
 	dest_auto = (dest) ? dest : 'auto'
 
 	//settings
@@ -169,7 +169,13 @@ module.exports = function( account,dest ){
 		let html = fs.readFileSync(path.join(__dirname,'../templates/cerrar-ventana.html'),'utf8')
 		res.end(html)
 		res.end('obteniendo cookie')
-		process.exit(0)
+
+		if(redirect){
+			res.redirect( redirect )
+		}
+		else{
+			process.exit(0)
+		}
 	})
 
 	const url_base = 'http://localhost:' + app.get('port')
