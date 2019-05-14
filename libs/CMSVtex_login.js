@@ -33,6 +33,11 @@ const save_cookie = ( cookie,dest_config,account ) => {
 		auto : dest_auto,
 		account
 	};
+
+	if(dest_auto != 'auto'){
+		fs.writeFileSync( path.join( __dirname,'/../config.json' ),JSON.stringify({auto:dest_auto},null,1) );
+	}
+
 	fs.writeFileSync( dest_config,JSON.stringify(cookie_def,null,1) );
 }
 
