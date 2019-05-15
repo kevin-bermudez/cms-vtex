@@ -64,14 +64,14 @@ module.exports = function( cms_vtex_template ){
 	 * @desc Obtiene una lista de sub templates.
 	 * @return {Object[]} Con toda la información de los sub templates incluidos id,nombre y html
 	 */
-	cms_vtex_template.get_sub_templates = () =>{return cms_vtex_template.get( true )}
+	cms_vtex_template.get_sub_templates = ( no_return_html ) =>{return cms_vtex_template.get( true,false,no_return_html )}
 
 	/**
 	 * @method get_shelf_templates
 	 * @desc Obtiene una lista de shelf templates.
 	 * @return {Object[]} Con toda la información de los shelf templates incluidos id,nombre y html
 	 */
-	cms_vtex_template.get_shelf_templates = () => { return cms_vtex_template.get( false,true )}
+	cms_vtex_template.get_shelf_templates = ( no_return_html ) => { return cms_vtex_template.get( false,true,no_return_html )}
 
 	/**
 	 * @method get_template
