@@ -144,14 +144,45 @@ module.exports = function( cms_vtex_template ){
 
 	}
 
-	cms_vtex_template.get_new_template_id = (templatename) => crypto.createHash('md5').update(templatename).digest('hex')
+	cms_vtex_template.get_new_template_id = ( sub_templates,shelf_template ) => {
+		//crypto.createHash('md5').update(templatename).digest('hex')
+		let sub_templates_def = (sub_templates) ? 'true' : 'false';
+
+		if(shelf_template){
+			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/AddShelfTemplate'
+		}
+		else{
+			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/AddTemplate?siteId=&isSub=' + sub_templates_def
+		}
+
+		let response_sync = request('GET',uri_def,
+		{
+			headers : {
+				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+			}
+		})
+
+		let $ = cheerio.load(response_sync.body.toString());
+
+		return ($('title').text().trim() == 'VTEX ID Authentication') ? false : $('#templateId').attr('value');
+	}
 
 	cms_vtex_template.save_template = ( name_template,sub_template_us,content,action_form,id_template,original_content_us,shelf_template,class_shelf,round_corners ) => {
 		let sub_template = (sub_template_us) ? true : false;
 		let original_content = (original_content_us) ? original_content_us : '';
 
 		if(action_form == 'Save'){
-			id_template = cms_vtex_template.get_new_template_id(name_template);
+			if(shelf_template){
+				id_template = cms_vtex_template.get_new_template_id(false,true);
+			}
+			else if(sub_template){
+				id_template = cms_vtex_template.get_new_template_id(true);
+			}
+			else{
+				id_template = cms_vtex_template.get_new_template_id();
+			}
+			
 			original_html = ''
 		}
 
