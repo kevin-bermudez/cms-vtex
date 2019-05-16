@@ -221,7 +221,11 @@ module.exports = function( cms_vtex_template ){
 			return obj.message
 		}	
 		else{
-			return true;
+			return {
+				success : true,
+				new_name : name_template,
+				new_id : id_template
+			}
 		}
 	}
 
