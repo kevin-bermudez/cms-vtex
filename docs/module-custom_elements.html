@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>
-      file - Documentation
+      custom_elements - Documentation
   </title>
 
   <link href="https://www.braintreepayments.com/images/favicon-ccda0b14.png" rel="icon" type="image/png">
@@ -79,7 +79,7 @@
   <div id="main">
     
       <h1 class="page-title">
-        file
+        custom_elements
       </h1>
     
 
@@ -97,7 +97,7 @@
       
         
           <div class="description">
-            <p>Este módulo es util para manipular los archivos que se encuentran en el CMS tales como:css, javascript e imágenes</p>
+            <p>Este módulo es util para manipular los custom elements del CMS de vtex incluidos también los objetos de los mismos</p>
           </div>
         
 
@@ -156,7 +156,7 @@
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="CMSVtex_file.js.html">CMSVtex_file.js</a>, <a href="CMSVtex_file.js.html#line11">line 11</a>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line11">line 11</a>
         </li>
       </ul>
     </dd>
@@ -208,13 +208,13 @@
   
 
   <span class='name-container'>
-    <a class="link-icon" href="#~delete">
+    <a class="link-icon" href="#~add">
       <svg height="20" width="20" style="fill: black;">
         <use xlink:href="#linkIcon"></use>
       </svg>
     </a>
-    <h4 class="name" id="~delete">
-      <span class="type-signature">(inner) </span>delete<span class="signature">(id_file, file_type)</span><span class="type-signature"> &rarr; {string|boolean}</span>
+    <h4 class="name" id="~add">
+      <span class="type-signature">(inner) </span>add<span class="signature">(instance_type, info_new)</span><span class="type-signature"> &rarr; {string|Boolean}</span>
     </h4>
   </span>
 
@@ -223,7 +223,7 @@
 
 
   <div class="description">
-    <p>Elimina un archivo del CMS de Vtex.</p>
+    <p>Agrega un custom element.</p>
   </div>
 
 
@@ -256,36 +256,7 @@
     
       <tr>
         
-          <td class="name"><code>id_file</code></td>
-        
-
-        <td class="type">
-          
-            
-    <span class="param-type">
-      integer
-    </span>
-
-    
-
-
-          
-        </td>
-
-        
-
-        
-
-        <td class="description last">
-          <p>Id del archivo asignado por el CMS de Vtex.</p>
-          
-        </td>
-      </tr>
-
-    
-      <tr>
-        
-          <td class="name"><code>file_type</code></td>
+          <td class="name"><code>instance_type</code></td>
         
 
         <td class="type">
@@ -306,7 +277,36 @@
         
 
         <td class="description last">
-          <p>Tipo de archivo a eliminar:css,js o image</p>
+          <p>Tipo de custom element: html o coleccion</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>info_new</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      Object
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Con la información de configuración para el custom element según corresponda.</p>
           
         </td>
       </tr>
@@ -350,7 +350,7 @@
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="CMSVtex_file.js.html">CMSVtex_file.js</a>, <a href="CMSVtex_file.js.html#line187">line 187</a>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line247">line 247</a>
         </li>
       </ul>
     </dd>
@@ -383,13 +383,13 @@
   
 
   <span class='name-container'>
-    <a class="link-icon" href="#~file_exist">
+    <a class="link-icon" href="#~delete_object_coleccion">
       <svg height="20" width="20" style="fill: black;">
         <use xlink:href="#linkIcon"></use>
       </svg>
     </a>
-    <h4 class="name" id="~file_exist">
-      <span class="type-signature">(inner) </span>file_exist<span class="signature">(name_file)</span><span class="type-signature"> &rarr; {Boolean}</span>
+    <h4 class="name" id="~delete_object_coleccion">
+      <span class="type-signature">(inner) </span>delete_object_coleccion<span class="signature">(instance_id, view_part_id, id_object)</span><span class="type-signature"> &rarr; {string|Boolean}</span>
     </h4>
   </span>
 
@@ -398,7 +398,7 @@
 
 
   <div class="description">
-    <p>Determina si un archivo existe en el CMS de Vtex.</p>
+    <p>Elimina un objeto del tipo coleccion de un custom element determinado.</p>
   </div>
 
 
@@ -431,7 +431,7 @@
     
       <tr>
         
-          <td class="name"><code>name_file</code></td>
+          <td class="name"><code>instance_id</code></td>
         
 
         <td class="type">
@@ -452,7 +452,65 @@
         
 
         <td class="description last">
-          <p>Nombre del arhivo que quiero comprobar con su extensión respectiva.</p>
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>view_part_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>id_object</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador del objeto que se quiere eliminar.</p>
           
         </td>
       </tr>
@@ -496,7 +554,7 @@
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="CMSVtex_file.js.html">CMSVtex_file.js</a>, <a href="CMSVtex_file.js.html#line109">line 109</a>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line562">line 562</a>
         </li>
       </ul>
     </dd>
@@ -529,13 +587,13 @@
   
 
   <span class='name-container'>
-    <a class="link-icon" href="#~get_file">
+    <a class="link-icon" href="#~delete_object_html">
       <svg height="20" width="20" style="fill: black;">
         <use xlink:href="#linkIcon"></use>
       </svg>
     </a>
-    <h4 class="name" id="~get_file">
-      <span class="type-signature">(inner) </span>get_file<span class="signature">(id, type)</span><span class="type-signature"> &rarr; {Object}</span>
+    <h4 class="name" id="~delete_object_html">
+      <span class="type-signature">(inner) </span>delete_object_html<span class="signature">(instance_id, view_part_id, id_object)</span><span class="type-signature"> &rarr; {string|Boolean}</span>
     </h4>
   </span>
 
@@ -544,7 +602,7 @@
 
 
   <div class="description">
-    <p>Obtiene el contenido de un arhivo desde Vtex.</p>
+    <p>Elimina un objeto del tipo html de un custom element determinado.</p>
   </div>
 
 
@@ -577,36 +635,7 @@
     
       <tr>
         
-          <td class="name"><code>id</code></td>
-        
-
-        <td class="type">
-          
-            
-    <span class="param-type">
-      integer
-    </span>
-
-    
-
-
-          
-        </td>
-
-        
-
-        
-
-        <td class="description last">
-          <p>Id del archivo asignado desde Vtex.</p>
-          
-        </td>
-      </tr>
-
-    
-      <tr>
-        
-          <td class="name"><code>type</code></td>
+          <td class="name"><code>instance_id</code></td>
         
 
         <td class="type">
@@ -627,7 +656,65 @@
         
 
         <td class="description last">
-          <p>El tipo de archivo que quiero obtener:css,js o image.</p>
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>view_part_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>id_object</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador del objeto que se quiere eliminar.</p>
           
         </td>
       </tr>
@@ -671,7 +758,7 @@
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="CMSVtex_file.js.html">CMSVtex_file.js</a>, <a href="CMSVtex_file.js.html#line46">line 46</a>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line495">line 495</a>
         </li>
       </ul>
     </dd>
@@ -704,13 +791,13 @@
   
 
   <span class='name-container'>
-    <a class="link-icon" href="#~get_list">
+    <a class="link-icon" href="#~get">
       <svg height="20" width="20" style="fill: black;">
         <use xlink:href="#linkIcon"></use>
       </svg>
     </a>
-    <h4 class="name" id="~get_list">
-      <span class="type-signature">(inner) </span>get_list<span class="signature">(file_type, quantity_files_us<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;Object>}</span>
+    <h4 class="name" id="~get">
+      <span class="type-signature">(inner) </span>get<span class="signature">(quantity_elements_us<span class="signature-attributes">opt</span>, width_content<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;Object>}</span>
     </h4>
   </span>
 
@@ -719,7 +806,7 @@
 
 
   <div class="description">
-    <p>Obtiene la lista de archivos de un tipo determinado que se encuentra en el CMS de vtex.</p>
+    <p>Obtiene una lista de los custom elements creados en el CMS de Vtex</p>
   </div>
 
 
@@ -745,8 +832,6 @@
       
 
       
-        <th>Default</th>
-      
 
       <th class="last">Description</th>
     </tr>
@@ -756,55 +841,14 @@
     
       <tr>
         
-          <td class="name"><code>file_type</code></td>
+          <td class="name"><code>quantity_elements_us</code></td>
         
 
         <td class="type">
           
             
     <span class="param-type">
-      string
-    </span>
-
-    
-
-
-          
-        </td>
-
-        
-          <td class="attributes">
-            
-
-            
-
-            
-          </td>
-        
-
-        
-          <td class="default">
-            
-          </td>
-        
-
-        <td class="description last">
-          <p>Tipo de archivo del que se quiere obtener la lista:css,js o images.</p>
-          
-        </td>
-      </tr>
-
-    
-      <tr>
-        
-          <td class="name"><code>quantity_files_us</code></td>
-        
-
-        <td class="type">
-          
-            
-    <span class="param-type">
-      integer
+      int
     </span>
 
     
@@ -826,15 +870,48 @@
         
 
         
-          <td class="default">
+
+        <td class="description last">
+          <p>Cuantos custom elements se quieren recibir como respuesta.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>width_content</code></td>
+        
+
+        <td class="type">
+          
             
-              200000000
+    <span class="param-type">
+      Boolean
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
             
           </td>
         
 
+        
+
         <td class="description last">
-          <p>Cantidad de archivos que se quiere obtener.</p>
+          <p>Si se quieren obtener los objectos de cada custom element.</p>
           
         </td>
       </tr>
@@ -878,7 +955,749 @@
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="CMSVtex_file.js.html">CMSVtex_file.js</a>, <a href="CMSVtex_file.js.html#line18">line 18</a>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line41">line 41</a>
+        </li>
+      </ul>
+    </dd>
+  
+
+  
+
+  
+
+  
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+        
+
+
+  
+
+  <span class='name-container'>
+    <a class="link-icon" href="#~get_info_instance">
+      <svg height="20" width="20" style="fill: black;">
+        <use xlink:href="#linkIcon"></use>
+      </svg>
+    </a>
+    <h4 class="name" id="~get_info_instance">
+      <span class="type-signature">(inner) </span>get_info_instance<span class="signature">(instance_id, view_part_id, coleccion)</span><span class="type-signature"> &rarr; {Object}</span>
+    </h4>
+  </span>
+
+  
+
+
+
+  <div class="description">
+    <p>Devuelve la información básica de un custom element sin incluir sus objetos</p>
+  </div>
+
+
+
+
+
+
+
+  <h5>Parameters:</h5>
+  
+
+<table class="params">
+  <thead>
+    <tr>
+      
+        <th>Name</th>
+      
+
+      <th>Type</th>
+
+      
+
+      
+
+      <th class="last">Description</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    
+      <tr>
+        
+          <td class="name"><code>instance_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devulto por Vtex.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>view_part_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Segundo identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>coleccion</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      Boolean
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Se pasa como true cuando el tipo de custom element del que se quiere obtener la información es Colección.</p>
+          
+        </td>
+      </tr>
+
+    
+  </tbody>
+</table>
+
+
+
+
+
+<dl class="details">
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source">
+      <ul class="dummy">
+        <li>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line92">line 92</a>
+        </li>
+      </ul>
+    </dd>
+  
+
+  
+
+  
+
+  
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+        
+
+
+  
+
+  <span class='name-container'>
+    <a class="link-icon" href="#~save_object_coleccion">
+      <svg height="20" width="20" style="fill: black;">
+        <use xlink:href="#linkIcon"></use>
+      </svg>
+    </a>
+    <h4 class="name" id="~save_object_coleccion">
+      <span class="type-signature">(inner) </span>save_object_coleccion<span class="signature">(instance_id, view_part_id, info_new, id_object<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {string|Boolean}</span>
+    </h4>
+  </span>
+
+  
+
+
+
+  <div class="description">
+    <p>Crea o actualiza un objeto de tipo coleccion para un custom element determinado.</p>
+  </div>
+
+
+
+
+
+
+
+  <h5>Parameters:</h5>
+  
+
+<table class="params">
+  <thead>
+    <tr>
+      
+        <th>Name</th>
+      
+
+      <th>Type</th>
+
+      
+        <th>Attributes</th>
+      
+
+      
+
+      <th class="last">Description</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    
+      <tr>
+        
+          <td class="name"><code>instance_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>view_part_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>info_new</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Configuración del nuevo objeto coleccion.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>id_object</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador del objeto en caso de que la acción requerida sea una actualización</p>
+          
+        </td>
+      </tr>
+
+    
+  </tbody>
+</table>
+
+
+
+
+
+<dl class="details">
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source">
+      <ul class="dummy">
+        <li>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line374">line 374</a>
+        </li>
+      </ul>
+    </dd>
+  
+
+  
+
+  
+
+  
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+        
+
+
+  
+
+  <span class='name-container'>
+    <a class="link-icon" href="#~save_object_html">
+      <svg height="20" width="20" style="fill: black;">
+        <use xlink:href="#linkIcon"></use>
+      </svg>
+    </a>
+    <h4 class="name" id="~save_object_html">
+      <span class="type-signature">(inner) </span>save_object_html<span class="signature">(instance_id, view_part_id, info_new, id_object<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {string|Boolean}</span>
+    </h4>
+  </span>
+
+  
+
+
+
+  <div class="description">
+    <p>Crea o actualiza un objeto de tipo html para un custom element determinado.</p>
+  </div>
+
+
+
+
+
+
+
+  <h5>Parameters:</h5>
+  
+
+<table class="params">
+  <thead>
+    <tr>
+      
+        <th>Name</th>
+      
+
+      <th>Type</th>
+
+      
+        <th>Attributes</th>
+      
+
+      
+
+      <th class="last">Description</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    
+      <tr>
+        
+          <td class="name"><code>instance_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>view_part_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>info_new</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Configuración del nuevo objeto html.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>id_object</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador del objeto en caso de que la acción requerida sea una actualización</p>
+          
+        </td>
+      </tr>
+
+    
+  </tbody>
+</table>
+
+
+
+
+
+<dl class="details">
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source">
+      <ul class="dummy">
+        <li>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line301">line 301</a>
         </li>
       </ul>
     </dd>
@@ -917,7 +1736,7 @@
       </svg>
     </a>
     <h4 class="name" id="~update">
-      <span class="type-signature">(inner) </span>update<span class="signature">(name_file, file_path)</span><span class="type-signature"> &rarr; {Promise}</span>
+      <span class="type-signature">(inner) </span>update<span class="signature">(view_part_id, custom_view_part_id)</span><span class="type-signature"> &rarr; {Boolean}</span>
     </h4>
   </span>
 
@@ -926,7 +1745,7 @@
 
 
   <div class="description">
-    <p>Modifica un archivo que ya se encuentra en el CMS de Vtex.</p>
+    <p>Elimina un custom element creado previamente en el CMS.</p>
   </div>
 
 
@@ -959,7 +1778,7 @@
     
       <tr>
         
-          <td class="name"><code>name_file</code></td>
+          <td class="name"><code>view_part_id</code></td>
         
 
         <td class="type">
@@ -980,7 +1799,7 @@
         
 
         <td class="description last">
-          <p>Nombre del archivo a modificar con la extensión incluida.</p>
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
           
         </td>
       </tr>
@@ -988,7 +1807,7 @@
     
       <tr>
         
-          <td class="name"><code>file_path</code></td>
+          <td class="name"><code>custom_view_part_id</code></td>
         
 
         <td class="type">
@@ -1009,7 +1828,7 @@
         
 
         <td class="description last">
-          <p>Ruta a donde se encuentra el archivo nuevo, incluido nombre y extensión del mismo.</p>
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
           
         </td>
       </tr>
@@ -1053,7 +1872,7 @@
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="CMSVtex_file.js.html">CMSVtex_file.js</a>, <a href="CMSVtex_file.js.html#line169">line 169</a>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line271">line 271</a>
         </li>
       </ul>
     </dd>
@@ -1086,13 +1905,13 @@
   
 
   <span class='name-container'>
-    <a class="link-icon" href="#~upload">
+    <a class="link-icon" href="#~update">
       <svg height="20" width="20" style="fill: black;">
         <use xlink:href="#linkIcon"></use>
       </svg>
     </a>
-    <h4 class="name" id="~upload">
-      <span class="type-signature">(inner) </span>upload<span class="signature">(filepath)</span><span class="type-signature"> &rarr; {Promise}</span>
+    <h4 class="name" id="~update">
+      <span class="type-signature">(inner) </span>update<span class="signature">(instance_type, info_new, view_part_id, instance_id)</span><span class="type-signature"> &rarr; {string|Boolean}</span>
     </h4>
   </span>
 
@@ -1101,7 +1920,7 @@
 
 
   <div class="description">
-    <p>Carga un nuevo archivo en el CMS de Vtex.</p>
+    <p>Actualiza un custom element creado previamente en el CMS.</p>
   </div>
 
 
@@ -1134,7 +1953,7 @@
     
       <tr>
         
-          <td class="name"><code>filepath</code></td>
+          <td class="name"><code>instance_type</code></td>
         
 
         <td class="type">
@@ -1155,7 +1974,94 @@
         
 
         <td class="description last">
-          <p>Url que apunta a donde se encuentra el archivo a subir.</p>
+          <p>Tipo de custom element: html o coleccion</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>info_new</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      Object
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Con la información de la nueva configuración para el custom element según corresponda.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>view_part_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>instance_id</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+
+        
+
+        <td class="description last">
+          <p>Identificador devuelto por Vtex y otros métodos de este módulo.</p>
           
         </td>
       </tr>
@@ -1199,7 +2105,7 @@
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="CMSVtex_file.js.html">CMSVtex_file.js</a>, <a href="CMSVtex_file.js.html#line133">line 133</a>
+          <a href="CMSVtex_custom_elements.js.html">CMSVtex_custom_elements.js</a>, <a href="CMSVtex_custom_elements.js.html#line258">line 258</a>
         </li>
       </ul>
     </dd>
