@@ -131,7 +131,7 @@ module.exports = function( cms_vtex_custom_elements ){
 		return var_return;
 	}
 
-	cms_vtex_custom_elements.generate_content_list_coleccion = ( actual_objects,instance_id,id_object ) => {
+	cms_vtex_custom_elements.generate_content_list_coleccion = ( actual_objects,instance_id ) => {
 		actual_objects_length = actual_objects.length,
 		shelf_content_list = []
 		//console.log('generate list',actual_objects)
@@ -152,12 +152,6 @@ module.exports = function( cms_vtex_custom_elements ){
 				SearchQueryString : actual_objects[index].additional.queryString,
 				Id : actual_objects[index].id
 			})
-
-			//console.log('el add is',actual_objects.objects[index].additional)
-			if(id_object){
-				if(typeof initial_content === 'undefined') initial_content_list = []
-				initial_content_list.push(shelf_content_list[shelf_content_list.length - 1])
-			}
 		}
 
 		return shelf_content_list;
@@ -494,6 +488,40 @@ module.exports = function( cms_vtex_custom_elements ){
 			htmlContentList : html_content_list,
 			htmlContentListInicial : initial_content_list
 		},view_part_id,instance_id)
+	}
+
+	cms_vtex_custom_elements.delete_object_coleccion = ( instance_id,view_part_id,id_object ) => {
+		let actual_objects = cms_vtex_custom_elements.get_list_objects( 'coleccion',instance_id );
+		console.log(actual_objects)
+		let index_object = actual_objects.map( ( actual_object ) => {
+			return actual_object.id;
+		}).indexOf( id_object );
+
+		if(index_object === -1){
+			return 'Este objeto no existe, al menos no en esta instancia (?)';
+		}
+		else{
+			let contentList = actual_objects
+			let contentListInicial = actual_objects.slice()
+			contentList.splice( index_object,1 );
+			console.log(contentList,contentListInicial)
+
+			let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true );
+			return cms_vtex_custom_elements.save('coleccion',{
+				customViewPartName : info_instance.name,
+				customViewPartTagName : info_instance.tag_name,
+				layout : info_instance.layout,
+				colCount : info_instance.colCount,
+				itemCount : info_instance.itemCount,
+				showUnavailable : info_instance.showUnavailable,
+				isRandomize : info_instance.isRandomize,
+				isPaged : info_instance.isPaged,
+				contentList : JSON.stringify(contentList),
+				contentListInicial : JSON.stringify(contentListInicial)
+
+			},view_part_id,instance_id)
+			//return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects,true,true )
+		}
 	}
 
 	return cms_vtex_custom_elements;
