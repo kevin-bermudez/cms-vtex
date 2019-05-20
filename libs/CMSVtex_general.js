@@ -79,6 +79,7 @@ module.exports = (function( cms_vtex_general ){
 					else{
 						additional = {
 							queryString : $(this).find('#queryString textarea').html().trim(),
+							
 						}
 
 						if($(this).find('#productCluster a').html().trim() != ''){

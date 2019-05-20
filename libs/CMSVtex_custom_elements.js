@@ -11,7 +11,12 @@ const path = require('path');
 module.exports = function( cms_vtex_custom_elements ){
 	cms_vtex_custom_elements.get_list_objects = ( instance_type,instance_id ) => {
 		//si es HTML
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
+		if(instance_type == 'html'){
+			uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
+		}
+		else{
+			uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
+		}
 		data = {
 			isCustomViewPart : 'True'
 		}
@@ -24,7 +29,7 @@ module.exports = function( cms_vtex_custom_elements ){
 			})
 
 		let body = response_sync.body.toString();
-			
+		//console.log(body)
 		return CMSVtex_general.get_content_object( body,instance_type );
 	}
 
@@ -60,6 +65,10 @@ module.exports = function( cms_vtex_custom_elements ){
 			})
 
 			if(width_content){
+				//console.log(response_vtex[index].cell[4])
+				//console.log(response_vtex[index].cell[2],response_vtex[index].cell[4])
+				//let type_instance = response_vtex[index].cell[4];
+				//console.log('el tipo lo trae como ',type_instance)
 				var_return[var_return.length - 1].objects = cms_vtex_custom_elements.get_list_objects( response_vtex[index].cell[4],response_vtex[index].cell[1] );
 			}
 		}
@@ -68,9 +77,9 @@ module.exports = function( cms_vtex_custom_elements ){
 
 	}
 
-	cms_vtex_custom_elements.get_info_instance = ( instance_id,view_part_id ) => {
+	cms_vtex_custom_elements.get_info_instance = ( instance_id,view_part_id,coleccion ) => {
 		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/AddCustomViewPart?siteId=&customViewPartId=' + instance_id + '&viewPartId=' + view_part_id
-
+		//console.log(uri_def)
 		let response_sync = request('GET',uri_def,{
 				headers : {
 					'Cookie' : CMSVtex_general.cookie_vtex,
@@ -81,22 +90,84 @@ module.exports = function( cms_vtex_custom_elements ){
 		let body = response_sync.body.toString();
 		let $ = cheerio.load(body);
 		//console.log(body)
-		return {
+
+		var_return = {
 			name : $('#customViewPartNameOut').attr('value').trim(),
 			tag_name : $('#customViewPartTagNameOut').attr('value').trim(),
 			instance_id,
 			view_part_id
-		};
+		}
+
+		if(coleccion){
+			let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=18b70f99-9ad4-40fa-a2f1-5646dbe5a023'
+			//console.log(uri_def)
+			let response_sync = request('POST',uri_def,{
+					headers : {
+						'Cookie' : CMSVtex_general.cookie_vtex,
+						'Content-Type' : "application/x-www-form-urlencoded; charset=UTF-8"
+					},
+					body : querystring.stringify({
+						isCustomViewPart : true
+					})
+				})
+
+			let body = response_sync.body.toString();
+			let $ = cheerio.load(body);
+
+			col_var_return = {
+				layout : $('#layout').children("option:selected").attr('value'),
+				colCount : $('#colCount').attr('value'),
+				itemCount : $('#itemCount').attr('value'),
+				showUnavailable : (typeof $('#showUnavailable').attr('checked') != 'undefined'),
+				isRandomize : (typeof $('#isRandomize').attr('checked') != 'undefined'),
+				isPaged : (typeof $('#isPaged').attr('checked') != 'undefined'),
+			}
+
+			
+
+			var_return = Object.assign( var_return,col_var_return );
+		}
+
+		return var_return;
+	}
+
+	cms_vtex_custom_elements.generate_content_list_coleccion = ( actual_objects,instance_id,id_object ) => {
+		actual_objects_length = actual_objects.length,
+		shelf_content_list = []
+		//console.log('generate list',actual_objects)
+		for(let index = 0;index < actual_objects_length;index++){
+			shelf_content_list.push({
+				ViewPartInstanceId : instance_id,
+				Indice : index,
+				ContentName : CMSVtex_general.get_html_entities(actual_objects[index].name),
+				Partner : actual_objects[index].partner,
+				Campaign : actual_objects[index].campaign,
+				Category : actual_objects[index].category,
+				Brand : actual_objects[index].brand,
+				Source : actual_objects[index].source,
+				Keyword : actual_objects[index].keyword,
+				Periods : actual_objects[index].period,
+				Active : (actual_objects[index].active),
+				ProductCluster : (actual_objects[index].additional.ProductCluster) ? actual_objects[index].additional.ProductCluster :'',
+				SearchQueryString : actual_objects[index].additional.queryString,
+				Id : actual_objects[index].id
+			})
+
+			//console.log('el add is',actual_objects.objects[index].additional)
+			if(id_object){
+				if(typeof initial_content === 'undefined') initial_content_list = []
+				initial_content_list.push(shelf_content_list[shelf_content_list.length - 1])
+			}
+		}
+
+		return shelf_content_list;
 	}
 
 	cms_vtex_custom_elements.save = ( instance_type,info_new,view_part_id,instance_id ) => {
 		//instance_id = ''
 		let data = {
 			viewPartInstanceId : (instance_id) ? instance_id : '',
-			FormHtmlConfigId : (instance_id) ? instance_id : '',
-			totalRows : 0,
-			htmlContentList : (info_new.htmlContentList) ? JSON.stringify(info_new.htmlContentList) : "",
-			htmlContentListInicial : (info_new.htmlContentListInicial) ? JSON.stringify(info_new.htmlContentListInicial) : "",
+			//totalRows : 0,
 			isCustomViewPart : 'True',
 			customViewPartName : info_new.customViewPartName,
 			customViewPartTagName : info_new.customViewPartTagName,
@@ -106,14 +177,39 @@ module.exports = function( cms_vtex_custom_elements ){
 			categoryNameSelected : (info_new.categoryNameSelected) ? info_new.categoryNameSelected : ''
 		}
 
+		if(instance_type == 'html'){
+			data.htmlContentList = (info_new.htmlContentList) ? JSON.stringify(info_new.htmlContentList) : ""
+			data.htmlContentListInicial = (info_new.htmlContentListInicial) ? JSON.stringify(info_new.htmlContentListInicial) : ""
+			data.FormHtmlConfigId = (instance_id) ? instance_id : ''
+		}
+		else{
+			data.layout = info_new.layout
+			data.colCount = info_new.colCount
+			data.itemCount = info_new.itemCount
+			data.showUnavailable = (info_new.showUnavailable) ? info_new.showUnavailable : false
+			data.isRandomize = (info_new.isRandomize) ? info_new.isRandomize : false
+			data.isPaged = (info_new.isPaged) ? info_new.isPaged : false
+			data.contentList = (info_new.contentList) ? info_new.contentList : '[]'
+			data.contentListInicial = (info_new.contentListInicial) ? info_new.contentListInicial : ''
+			data.FormShelfConfigId = (instance_id) ? instance_id : ''
+			//data.customViewpartId = ''
+		}
+
 		if(view_part_id){
 			data.customViewPartId = instance_id;
 			data.viewPartId = view_part_id;
 		}
 
-		console.log(data)
+		//console.log(data)
 
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveHtmlConfig'
+		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/'
+		if(instance_type == 'html'){
+			uri_def += 'SaveHtmlConfig'
+		}
+		else{
+			uri_def += 'SaveControlConfig'
+		}
+		
 
 		let sync_response = request('POST',uri_def,{
 			headers : {
@@ -227,6 +323,118 @@ module.exports = function( cms_vtex_custom_elements ){
 
 		},view_part_id,instance_id)
 
+	}
+
+	cms_vtex_custom_elements.save_object_coleccion = ( instance_id,view_part_id,info_new,id_object ) => {
+		let actual_objects = cms_vtex_custom_elements.get_list_objects( 'coleccion',instance_id ),
+			shelf_content_list = cms_vtex_custom_elements.generate_content_list_coleccion( actual_objects,instance_id,id_object )
+
+		if(!id_object){
+			shelf_content_list.push({
+				ViewPartInstanceId : instance_id,
+				Indice : actual_objects.length,
+				ContentName : (info_new.ContentName) ? CMSVtex_general.get_html_entities(info_new.ContentName) : '',
+				Partner : (info_new.partner) ? info_new.partner : '',
+				Campaign : (info_new.campaign) ? info_new.campaign : '',
+				Category : (info_new.category) ? info_new.category : '',
+				Brand : (info_new.brand) ? info_new.brand : '',
+				Source : (info_new.source) ? info_new.source : '',
+				Keyword : (info_new.keyword) ? info_new.keyword : '',
+				Periods : (info_new.periods) ? info_new.periods : [],
+				Active : (info_new.active) ? 'True' : 'False',
+				ProductCluster : (info_new.ProductCluster) ? info_new.ProductCluster : '',
+				SearchQueryString : (info_new.SearchQueryString) ? info_new.SearchQueryString : ''
+			})
+
+			//delete actual_objects.objects;
+			//actual_objects.totalRows = actual_objects_length + 1
+			contentList = JSON.stringify(shelf_content_list)
+			contentListInicial = ''
+
+			let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true );
+
+			//console.log( 'info instance',info_instance )
+					
+			return cms_vtex_custom_elements.save('coleccion',{
+				customViewPartName : info_instance.name,
+				customViewPartTagName : info_instance.tag_name,
+				layout : info_instance.layout,
+				colCount : info_instance.colCount,
+				itemCount : info_instance.itemCount,
+				showUnavailable : info_instance.showUnavailable,
+				isRandomize : info_instance.isRandomize,
+				isPaged : info_instance.isPaged,
+				contentList : contentList,
+				contentListInicial : ''
+
+			},view_part_id,instance_id)
+		}
+		else{
+			//console.log(actual_objects.objects)
+			let index_object_actual = actual_objects.map( (actual_object) => {
+				return actual_object.id
+			}).indexOf( id_object )
+			
+			if(index_object_actual === -1){
+				return 'este objeto no existe, paila :\'(';
+			}
+			else{
+				if(actual_objects[index_object_actual].additional.ProductCluster){
+					default_productoCluster = actual_objects[index_object_actual].additional.ProductCluster.id
+				}
+				else{
+					default_productoCluster = ''
+				}
+				//console.log('el index encontrado es',index_object_actual)
+				shelf_content_list[index_object_actual] = {
+					ViewPartInstanceId : instance_id,
+					Indice : index_object_actual,
+					ContentName : (info_new.ContentName) ? info_new.ContentName : CMSVtex_general.get_html_entities(actual_objects[index_object_actual].name),
+					Partner : (info_new.partner) ? info_new.partner : actual_objects[index_object_actual].partner,
+					Campaign : (info_new.campaign) ? info_new.campaign : actual_objects[index_object_actual].campaign,
+					Category : (info_new.category) ? info_new.category : actual_objects[index_object_actual].category,
+					Brand : (info_new.brand) ? info_new.brand : actual_objects[index_object_actual].brand,
+					Source : (info_new.source) ? info_new.source : actual_objects[index_object_actual].source,
+					Keyword : (info_new.keyword) ? info_new.keyword : actual_objects[index_object_actual].keyword,
+					Periods : (info_new.periods) ? info_new.periods : actual_objects[index_object_actual].period,
+					Active : (typeof info_new.active !== 'undefined') ? info_new.active : actual_objects[index_object_actual].active,
+					ProductCluster : (info_new.ProductCluster) ? info_new.ProductCluster : default_productoCluster,
+					SearchQueryString : (info_new.SearchQueryString) ? info_new.SearchQueryString : actual_objects[index_object_actual].additional.queryString,
+					Id : actual_objects[index_object_actual].id
+				}
+
+				//console.log(shelf_content_list)
+
+				//actual_objects.totalRows = actual_objects_length + 1
+				//actual_objects.contentList = JSON.stringify(shelf_content_list)
+				//actual_objects.contentListInicial = JSON.stringify(initial_content_list)
+
+				//return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects )
+
+				let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true );
+
+				//console.log( 'info instance',info_instance )
+						
+				return cms_vtex_custom_elements.save('coleccion',{
+					customViewPartName : info_instance.name,
+					customViewPartTagName : info_instance.tag_name,
+					layout : info_instance.layout,
+					colCount : info_instance.colCount,
+					itemCount : info_instance.itemCount,
+					showUnavailable : info_instance.showUnavailable,
+					isRandomize : info_instance.isRandomize,
+					isPaged : info_instance.isPaged,
+					contentList : JSON.stringify(shelf_content_list),
+					contentListInicial : JSON.stringify(initial_content_list)
+
+				},view_part_id,instance_id)
+			}
+
+		}
+
+		//return cms_vtex_layout.get_list_objects( 'coleccion',instance_id );
+		
+		//return body
 	}
 
 	cms_vtex_custom_elements.delete_object_html = ( instance_id,view_part_id,id_object ) => {
