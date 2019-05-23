@@ -37,7 +37,8 @@ module.exports = function( cms_vtex_layout ){
 				default : (typeof $('#layoutDefault').attr('checked') != 'undefined'),
 				active : (typeof $('#isActive').attr('checked') != 'undefined'),
 				use_legacy : (typeof $('#useLegacy').attr('checked') != 'undefined'),
-				placeholders : []
+				placeholders : [],
+				body_class : $('#bodyClass').attr('value')
 			}
 		$('.vtex-placeholder-span').each(function(){
 			return_var.placeholders.push({
