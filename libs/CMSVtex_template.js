@@ -224,7 +224,8 @@ module.exports = function( cms_vtex_template ){
 			return {
 				success : true,
 				new_name : name_template,
-				new_id : id_template
+				new_id : id_template,
+				new_html : content
 			}
 		}
 	}
