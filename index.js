@@ -4,6 +4,7 @@ const cheerio = require('cheerio');
 const entities = require('html-entities').XmlEntities;
 const fs = require('fs');
 const path = require('path')
+const CMSVtex_general = require(path.join(__dirname,'libs/CMSVtex_general'));
 const CMSVtex_website = require(path.join(__dirname,'libs/CMSVtex_website'));
 const CMSVtex_folder = require(path.join(__dirname,'libs/CMSVtex_folder'));
 const CMSVtex_layout = require(path.join(__dirname,'libs/CMSVtex_layout'));
@@ -21,6 +22,7 @@ module.exports = function(){
 		template : CMSVtex_template,
 		login : CMSVtex_login,
 		file : CMSVtex_file,
-		custom_elements : CMSVtex_custom_elements
+		custom_elements : CMSVtex_custom_elements,
+		general : CMSVtex_general
 	}
 }()
