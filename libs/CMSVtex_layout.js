@@ -58,12 +58,25 @@ module.exports = function( cms_vtex_layout ){
 					var tipo = CMSVtex_general.get_type_control( $(this).attr('id').split('TSC')[0] );
 
 					if(index_placeholder !== -1){
+						if(tipo == 'coleccion'){
+							info_control = cms_vtex_layout.get_list_objects( tipo,$(this).attr('instanceid') )
+							objects = info_control.objects
+						}
+						else{
+							objects = cms_vtex_layout.get_list_objects( tipo,$(this).attr('instanceid') )
+						}
 						return_var.placeholders[index_placeholder].controls.push({
 							type : tipo,
 							instance : $(this).attr('instanceid'),
 							name : $(this).attr('name'),
-							objects : cms_vtex_layout.get_list_objects( tipo,$(this).attr('instanceid') )
+							objects
 						})	
+
+						if(tipo == 'coleccion'){
+							delete info_control.objects;
+							return_var.placeholders[index_placeholder].controls[return_var.placeholders[index_placeholder].controls.length-1].shelf_config = info_control
+						}
+
 					}
 				})
 			}
