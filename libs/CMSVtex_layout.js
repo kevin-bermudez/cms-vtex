@@ -62,7 +62,7 @@ module.exports = function( cms_vtex_layout ){
 							type : tipo,
 							instance : $(this).attr('instanceid'),
 							name : $(this).attr('name'),
-							objects : cms_vtex_layout.get_list_objects( 'html',$(this).attr('instanceid') )
+							objects : cms_vtex_layout.get_list_objects( tipo,$(this).attr('instanceid') )
 						})	
 					}
 				})
