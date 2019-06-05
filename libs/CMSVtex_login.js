@@ -41,16 +41,18 @@ const save_cookie = ( cookie,dest_config,account ) => {
 
 	if(fs.existsSync( dest_conf_def )){
 		cookie_def = JSON.parse( fs.readFileSync( dest_conf_def,'utf8' ) )
+		console.log('cookie def antes',cookie_def)
 		index_account = cookie_def.map( ( data ) => {
 			return data.account
 		}).indexOf( account )
 
 		if(index_account == -1){
-			index_account = cookie_def.length - 1
+			index_account = cookie_def.length
 		}
 
-		cookie_def[index_account] = cookie_prev;
+		console.log(index_account,'index account is')
 
+		cookie_def[index_account] = cookie_prev;
 		
 	}
 	else{
