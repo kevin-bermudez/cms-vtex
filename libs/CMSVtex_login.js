@@ -1,4 +1,6 @@
 const express = require('express');
+const request = require('sync-request');
+const cheerio = require('cheerio');
 const router = express.Router();
 const fs = require('fs')
 const app = express();
@@ -28,17 +30,37 @@ const get_cookie = ( name_cookie,cookies ) => {
 }
 
 const save_cookie = ( cookie,dest_config,account ) => {
-	let cookie_def = {
+	cookie_prev = {
 		cookie_vtex : cookie,
 		auto : dest_auto,
 		account
 	};
 
+	let dest_conf_def = (dest_auto != 'auto') ? dest_config : path.join( __dirname,'/../config.json' )
+
+	if(fs.existsSync( dest_conf_def )){
+		cookie_def = JSON.parse( fs.readFileSync( dest_conf_def,'utf8' ) )
+		index_account = cookie_def.map( ( data ) => {
+			return data.account
+		}).indexOf( account )
+
+		if(index_account == -1){
+			index_account = cookie_def.length - 1
+		}
+
+		cookie_def[index_account] = cookie_prev;
+
+		
+	}
+	else{
+		cookie_def = [cookie_prev]
+	}
+
 	if(dest_auto != 'auto'){
 		fs.writeFileSync( path.join( __dirname,'/../config.json' ),JSON.stringify({auto:dest_auto},null,1) );
 	}
 
-	fs.writeFileSync( dest_config,JSON.stringify(cookie_def,null,1) );
+	fs.writeFileSync( dest_conf_def,JSON.stringify(cookie_def,null,1) );
 }
 
 const open = require('open');
@@ -46,11 +68,13 @@ const open = require('open');
 /**
  * @method
  * @desc Abre una ventana para realizar el login en Vtex con una cuenta que tenga acceso al admin de una cuenta específica
- * @param {string} account Cuenta con la que se identifica el cliente en Vtex.
- * @param {string} [dest] Ruta del destino donde quedará almacenada la info de configuración del plugin sobre todo información de autenticación.
-*/
+ */
 module.exports = function( account,dest,redirect ){
 	dest_auto = (dest) ? dest : 'auto'
+
+	/*if(!fs.existsSync( dest )){
+		fs.writeFileSync( dest )
+	}*/
 
 	//settings
 	app.set('port', process.env.PORT || 2000);
@@ -93,8 +117,40 @@ module.exports = function( account,dest,redirect ){
 
 	const url_base = 'http://localhost:' + app.get('port')
 
-	console.log(url_base + '/get-cookie')
+	//console.log(url_base + '/get-cookie')
 	open(url_base + '/get-cookie')
+}
+
+/**
+ * @method is_logged
+ * @desc Comprueba si la cookie almacenada para una cuenta determinada es valida o no
+ * @return Boolean Retorna true si es valida y false si no
+*/
+module.exports.is_logged = function( account,config_file_path ){
+	if(!fs.existsSync( config_file_path ))
+		return false;
+
+	let config_arr = JSON.parse( fs.readFileSync( config_file_path ) )
+
+	index_in_config = config_arr.map( account => {
+		return account.account;
+	} ).indexOf( account );
+
+	if(index_in_config === -1){
+		return false;
+	}
+	else{
+		let uri_def = 'https://' + account + '.vtexcommercestable.com.br/admin/Site/Help.aspx'
+		let response_sync = request('GET',uri_def,{
+			headers : {
+				'Cookie' : 'VtexIdclientAutCookie=' + config_arr[index_in_config].cookie_vtex,
+				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+			}
+		})
+		let $ = cheerio.load( response_sync.body.toString() )
+		
+		return ($('title').text().trim() != 'VTEX ID Authentication')
+	}
 }
 
 

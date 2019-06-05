@@ -2,15 +2,14 @@
 const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
-const CMSVtex_general = require('./CMSVtex_general');
 
 /**
  * Layout.
  * @module layout
  * @since 1.0.0
  * @desc Este módulo es util para manipular layouts del CMS de vtex incluido también los controles y objetos de los mismos */
-module.exports = function( cms_vtex_layout ){
-
+module.exports = function( CMSVtex_general ){
+	cms_vtex_layout = exports;
 	/**
 	 * @method get
 	 * @desc Obtiene la información relacionada a un layout.
@@ -887,4 +886,4 @@ module.exports = function( cms_vtex_layout ){
 	}
 
 	return cms_vtex_layout;
-}( exports )
+}

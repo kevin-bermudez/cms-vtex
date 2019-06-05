@@ -2,7 +2,6 @@
 const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
-const CMSVtex_general = require('./CMSVtex_general');
 const form_data = require('form-data');
 //var http = require('http');
 const fs = require('fs');
@@ -14,7 +13,8 @@ const path = require('path');
  * @since 1.0.0
  * @desc Este módulo es util para manipular los archivos que se encuentran en el CMS tales como:css, javascript e imágenes
  */
-module.exports = function( cms_vtex_file ){
+module.exports = function( CMSVtex_general ){
+	cms_vtex_file = exports;
 	/**
 	 * @method get_list
 	 * @desc Obtiene la lista de archivos de un tipo determinado que se encuentra en el CMS de vtex.
@@ -208,4 +208,4 @@ module.exports = function( cms_vtex_file ){
 	}
 
 	return cms_vtex_file
-}( exports )
+}

@@ -2,8 +2,6 @@
 const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
-const CMSVtex_general = require('./CMSVtex_general');
-const CMSVtex_layout = require('./CMSVtex_layout');
 
 /**
  * Folder.
@@ -11,7 +9,9 @@ const CMSVtex_layout = require('./CMSVtex_layout');
  * @since 1.0.0
  * @desc Este módulo es util para manipular las carpetas que se encuentran dentro de Sites_and_Channels en el CMS de vtex
  */
-module.exports = function( cms_vtex_folder ){
+module.exports = function( CMSVtex_general ){
+	cms_vtex_folder = exports;
+	const CMSVtex_layout = require('./CMSVtex_layout')( exports,CMSVtex_general );
 	/**
 	 * @method get
 	 * @desc Obtiene la lista completa de folders con sus layouts correspondientes hijos de un folder determinado
@@ -242,4 +242,4 @@ module.exports = function( cms_vtex_folder ){
 	}
 
 	return cms_vtex_folder;
-}( exports )
+}

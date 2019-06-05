@@ -2,7 +2,6 @@
 const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
-const CMSVtex_general = require('./CMSVtex_general');
 const CMSVtex_layout = require('./CMSVtex_layout');
 //var http = require('http');
 const fs = require('fs');
@@ -13,7 +12,8 @@ const path = require('path');
  * @module custom_elements
  * @since 1.0.0
  * @desc Este módulo es util para manipular los custom elements del CMS de vtex incluidos también los objetos de los mismos */
-module.exports = function( cms_vtex_custom_elements ){
+module.exports = function( CMSVtex_general ){
+	cms_vtex_custom_elements = exports;
 	cms_vtex_custom_elements.get_list_objects = ( instance_type,instance_id ) => {
 		//si es HTML
 		if(instance_type == 'html'){
@@ -602,4 +602,4 @@ module.exports = function( cms_vtex_custom_elements ){
 	}
 
 	return cms_vtex_custom_elements;
-}( exports )
+}

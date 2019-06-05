@@ -1,14 +1,14 @@
 //Dependencias
 const request = require('sync-request');
 const cheerio = require('cheerio');
-const CMSVtex_general = require('./CMSVtex_general');
 
 /**
  * Website.
  * @module website
  * @since 1.0.0
  * @desc Este módulo es útil para obtener los websites asociados a una cuenta o la información de uno específico*/
-module.exports = function( cms_vtex_website ){
+module.exports = function( CMSVtex_general ){
+	cms_vtex_website = exports;
 
 	/**
 	 * @method get_website_by_name
@@ -67,4 +67,4 @@ module.exports = function( cms_vtex_website ){
 	}
 
 	return cms_vtex_website;
-}( exports )
+}

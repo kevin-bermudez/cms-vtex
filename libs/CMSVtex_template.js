@@ -4,7 +4,6 @@ const request2 = require('request');
 const cheerio = require('cheerio');
 const crypto = require('crypto');
 const fs = require('fs');
-const CMSVtex_general = require('./CMSVtex_general');
 const querystring = require('querystring');
 
 /**
@@ -12,7 +11,8 @@ const querystring = require('querystring');
  * @module template
  * @since 1.0.0
  * @desc Este módulo es util para manipular templates,sub-templates,shelf templates del CMS de vtex */
-module.exports = function( cms_vtex_template ){
+module.exports = function( CMSVtex_general ){
+	cms_vtex_template = exports;
 	/**
 	 * @method get
 	 * @desc Obtiene una lista de templates,sub templates o shelf templates.
@@ -339,4 +339,4 @@ module.exports = function( cms_vtex_template ){
 	}
 
 	return cms_vtex_template;
-}( exports )
+}
