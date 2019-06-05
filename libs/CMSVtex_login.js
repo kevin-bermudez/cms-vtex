@@ -4,7 +4,8 @@ const cheerio = require('cheerio');
 const router = express.Router();
 const fs = require('fs')
 const app = express();
-const path = require('path')
+const path = require('path');
+const ejs = require('ejs');
 
 /**
  * Login.
@@ -94,7 +95,17 @@ module.exports = function( account,dest,redirect ){
 	})
 
 	router.get('/get-cookie',(req,res) => {
-		let html = fs.readFileSync(path.join(__dirname,'../templates/login-vtex.html'),'utf8')
+		let html = ''
+		ejs.renderFile(path.join( path.join(__dirname,'../templates/login-vtex.ejs') ), {
+			account_name : account
+		}, {
+			async : false
+		}, function(err, str){
+		    html = str
+		});
+
+		//return str_template;
+		//let html = fs.readFileSync(path.join(__dirname,'../templates/login-vtex.html'),'utf8')
 		res.end(html)
 	})
 
