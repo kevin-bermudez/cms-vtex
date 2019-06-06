@@ -57,7 +57,7 @@ module.exports = function( CMSVtex_general ){
 			$('.jqueryFileTreeBody li.directory').each(function(){
 				let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
 				console.log(id_folder_tmp)
-				return_var.folders.push(cms_vtex_folder.get( website,id_folder_tmp ))
+				return_var.folders.push(cms_vtex_folder.get( website,id_folder_tmp,only_folder ))
 			})
 
 			
