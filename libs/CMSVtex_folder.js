@@ -19,7 +19,7 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} folder Id del folder del que se quiere obtener la información.
 	 * @return {Object[]} Array con los folders y layouts de un folder padre
 	 */
-	cms_vtex_folder.get = ( website,folder,only_folder ) => {
+	cms_vtex_folder.get = ( website,folder,only_folder,not_recursive ) => {
 		console.log('start get folder',folder)
 		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderContentBody?dir=folder:' + website + ':' + folder + '/',
 			id_website = website,
@@ -51,7 +51,7 @@ module.exports = function( CMSVtex_general ){
 			return_var.name = name_split[name_split.length - 1]
 		}
 
-		if(c_directories > 0){
+		if(!not_recursive && c_directories > 0){
 			return_var.folders = []
 
 			$('.jqueryFileTreeBody li.directory').each(function(){
