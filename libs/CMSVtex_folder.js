@@ -19,7 +19,7 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} folder Id del folder del que se quiere obtener la información.
 	 * @return {Object[]} Array con los folders y layouts de un folder padre
 	 */
-	cms_vtex_folder.get = ( website,folder ) => {
+	cms_vtex_folder.get = ( website,folder,only_folder ) => {
 		console.log('start get folder',folder)
 		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderContentBody?dir=folder:' + website + ':' + folder + '/',
 			id_website = website,
@@ -63,7 +63,7 @@ module.exports = function( CMSVtex_general ){
 			
 		}
 		
-		if($('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
+		if(!only_folder && $('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
 			return_var.layouts = []
 			$('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').each(function(){
 				let layout_tmp = CMSVtex_layout.get( $(this).find('.IconDel').attr('href').split('layoutId=')[1] );
