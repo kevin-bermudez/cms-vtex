@@ -60,7 +60,7 @@ module.exports = function( CMSVtex_general ){
 					return_var.folders.push({
 						id_website : website,
 						id_folder : id_folder_tmp,
-						name : $(this).find('div:first').text().trim(),
+						name : $(this).find('div').text().trim(),
 						root : false
 					})
 				})
