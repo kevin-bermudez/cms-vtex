@@ -51,7 +51,7 @@ module.exports = function( CMSVtex_general ){
 			return_var.name = name_split[name_split.length - 1]
 		}
 
-		if(!not_recursive && c_directories > 0){
+		if((!not_recursive && c_directories > 0) || (return_var.root)){
 			return_var.folders = []
 
 			$('.jqueryFileTreeBody li.directory').each(function(){
