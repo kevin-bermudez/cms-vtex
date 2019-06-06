@@ -109,9 +109,11 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Obtiene la lista completa de folders con sus layouts correspondientes hijos de un folder determinado
 	 * @param {string} website Id del website al que pertenece el folder padre.
 	 * @param {string} folder Id del folder del que se quiere obtener la información.
+	 * @param {Boolean} [only_folder] Verdadero si quiero obtener layouts falso de lo contrario.
+	 * @param {Boolean|String} [not_recursive] Verdadero si no quiero que sea recursiva falso de lo contrario y force si es el root y no quiero que sea recursiva.
 	 * @return {Object[]} Array con los folders y layouts de un folder padre
 	 */
-	cms_vtex_folder.get = ( website,folder ) => {
+	cms_vtex_folder.get = ( website,folder,only_folder,not_recursive ) => {
 		console.log('start get folder',folder)
 		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderContentBody?dir=folder:' + website + ':' + folder + '/',
 			id_website = website,
@@ -143,19 +145,35 @@ module.exports = function( CMSVtex_general ){
 			return_var.name = name_split[name_split.length - 1]
 		}
 
-		if(c_directories > 0){
-			return_var.folders = []
+		if(only_folder){
+			if((!not_recursive &amp;&amp; c_directories > 0) || (return_var.root &amp;&amp; (typeof not_recursive != 'undefined' &amp;&amp; not_recursive != 'force'))){
+				return_var.folders = []
+				$('.jqueryFileTreeBody li.directory').each(function(){
+					let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
+					//console.log(id_folder_tmp)
+					return_var.folders.push({
+						id_website : website,
+						id_folder : id_folder_tmp,
+						name : $(this).find('div').text().trim(),
+						root : false
+					})
+				})
+			}
+		}
+		else{
+			if((!not_recursive &amp;&amp; c_directories > 0) || (return_var.root &amp;&amp; (typeof not_recursive != 'undefined' &amp;&amp; not_recursive != 'force'))){
+				return_var.folders = []
 
-			$('.jqueryFileTreeBody li.directory').each(function(){
-				let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
-				console.log(id_folder_tmp)
-				return_var.folders.push(cms_vtex_folder.get( website,id_folder_tmp ))
-			})
-
-			
+				$('.jqueryFileTreeBody li.directory').each(function(){
+					let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
+					//console.log(id_folder_tmp)
+					return_var.folders.push(cms_vtex_folder.get( website,id_folder_tmp,only_folder,not_recursive ))
+				})
+			}
 		}
 		
-		if($('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
+		
+		if(!only_folder &amp;&amp; $('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
 			return_var.layouts = []
 			$('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').each(function(){
 				let layout_tmp = CMSVtex_layout.get( $(this).find('.IconDel').attr('href').split('layoutId=')[1] );

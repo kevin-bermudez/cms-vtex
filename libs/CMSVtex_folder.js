@@ -17,6 +17,8 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Obtiene la lista completa de folders con sus layouts correspondientes hijos de un folder determinado
 	 * @param {string} website Id del website al que pertenece el folder padre.
 	 * @param {string} folder Id del folder del que se quiere obtener la información.
+	 * @param {Boolean} [only_folder] Verdadero si quiero obtener layouts falso de lo contrario.
+	 * @param {Boolean|String} [not_recursive] Verdadero si no quiero que sea recursiva falso de lo contrario y force si es el root y no quiero que sea recursiva.
 	 * @return {Object[]} Array con los folders y layouts de un folder padre
 	 */
 	cms_vtex_folder.get = ( website,folder,only_folder,not_recursive ) => {
@@ -52,7 +54,7 @@ module.exports = function( CMSVtex_general ){
 		}
 
 		if(only_folder){
-			if((!not_recursive && c_directories > 0) || (return_var.root)){
+			if((!not_recursive && c_directories > 0) || (return_var.root && (typeof not_recursive != 'undefined' && not_recursive != 'force'))){
 				return_var.folders = []
 				$('.jqueryFileTreeBody li.directory').each(function(){
 					let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
@@ -67,7 +69,7 @@ module.exports = function( CMSVtex_general ){
 			}
 		}
 		else{
-			if((!not_recursive && c_directories > 0) || (return_var.root)){
+			if((!not_recursive && c_directories > 0) || (return_var.root && (typeof not_recursive != 'undefined' && not_recursive != 'force'))){
 				return_var.folders = []
 
 				$('.jqueryFileTreeBody li.directory').each(function(){
