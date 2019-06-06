@@ -53,6 +53,7 @@ module.exports = function( CMSVtex_general ){
 
 		if(only_folder){
 			if((!not_recursive && c_directories > 0) || (return_var.root)){
+				return_var.folders = []
 				$('.jqueryFileTreeBody li.directory').each(function(){
 					let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
 					//console.log(id_folder_tmp)
