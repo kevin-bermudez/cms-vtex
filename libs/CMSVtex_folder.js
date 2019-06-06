@@ -51,17 +51,32 @@ module.exports = function( CMSVtex_general ){
 			return_var.name = name_split[name_split.length - 1]
 		}
 
-		if((!not_recursive && c_directories > 0) || (return_var.root)){
-			return_var.folders = []
-
-			$('.jqueryFileTreeBody li.directory').each(function(){
-				let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
-				console.log(id_folder_tmp)
-				return_var.folders.push(cms_vtex_folder.get( website,id_folder_tmp,only_folder,not_recursive ))
-			})
-
-			
+		if(only_folder){
+			if((!not_recursive && c_directories > 0) || (return_var.root)){
+				$('.jqueryFileTreeBody li.directory').each(function(){
+					let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
+					//console.log(id_folder_tmp)
+					return_var.folders.push({
+						id_website : website,
+						id_folder : id_folder_tmp,
+						name : $(this).find('div:first').text().trim(),
+						root : false
+					})
+				})
+			}
 		}
+		else{
+			if((!not_recursive && c_directories > 0) || (return_var.root)){
+				return_var.folders = []
+
+				$('.jqueryFileTreeBody li.directory').each(function(){
+					let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
+					//console.log(id_folder_tmp)
+					return_var.folders.push(cms_vtex_folder.get( website,id_folder_tmp,only_folder,not_recursive ))
+				})
+			}
+		}
+		
 		
 		if(!only_folder && $('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
 			return_var.layouts = []
