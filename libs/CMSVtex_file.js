@@ -52,19 +52,23 @@ module.exports = function( CMSVtex_general ){
 	 */
 	cms_vtex_file.get_file = ( id,type ) => {
 		if(isNaN(parseInt(id))){
+			url_test = id
 			uri_def = CMSVtex_general.url_arquivos + '/' + id
 		}
 		else{
+			url_test = 'ids/' + id
 			uri_def = CMSVtex_general.url_arquivos + '/ids/' + id
 		}
 
-		if(cms_vtex_file.file_exist('ids/' + id)){
+		if(cms_vtex_file.file_exist( url_test )){
 			let response_sync = request('GET',uri_def,{
 				headers : {
 					'Cookie' : CMSVtex_general.cookie_vtex,
 					'Content-Type' : 'text'
 				}
 			})
+
+			console.log(response_sync)
 			if(response_sync.statusCode > 300){
 				console.log(response_sync)	
 			}
