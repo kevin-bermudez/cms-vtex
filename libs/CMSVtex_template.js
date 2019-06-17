@@ -44,6 +44,7 @@ module.exports = function( CMSVtex_general ){
 			$ = cheerio.load(body),
 			return_var = []
 		contador = 0
+
 		$('.jqueryFileTreeBody li').each(function(){
 			//let quick_return = cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] )
 			console.log('guardando un template',(contador++) + ' de ',$('.jqueryFileTreeBody li').length)
@@ -89,7 +90,7 @@ module.exports = function( CMSVtex_general ){
 			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/TemplateContent?templateId=' + id_template
 		}
 		
-		
+		//console.log(uri_def)
 		let response_sync = request('GET',uri_def,{
 				headers : {
 					'Cookie' : CMSVtex_general.cookie_vtex,
@@ -104,8 +105,13 @@ module.exports = function( CMSVtex_general ){
 				id : id_template,
 				name : $('input#templateName').attr('value'),
 				html : CMSVtex_general.get_html_entities($('textarea').html()),
-				//placeholders : xml_object
+				//placeholders : xml_obje
 			}
+
+		if(shelf){
+			info_template.templateCssClass = $('#templateCssClass').attr('value')
+			info_template.round_corners = (typeof $('#roundCorners').attr('checked') !== 'undefined')
+		}
 	
 		return info_template	
 	}
