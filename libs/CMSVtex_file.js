@@ -20,16 +20,19 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Obtiene la lista de archivos de un tipo determinado que se encuentra en el CMS de vtex.
 	 * @param {string} file_type Tipo de archivo del que se quiere obtener la lista:css,js o images.
 	 * @param {integer} [quantity_files_us=200000000] Cantidad de archivos que se quiere obtener.
+	 * @param {integer} [page_us=1] Valor para el paginador de resultados
 	 * @return {Object[]} Lista de archivos con id,nombre y extensión.
 	 */
-	cms_vtex_file.get_list = ( file_type,quantity_files_us ) => {
+	cms_vtex_file.get_list = ( file_type,quantity_files_us,page_us ) => {
 		let data = {
-			page : 1,
+			page : (page_us) ? page_us : 1,
 			rp : (quantity_files_us) ? quantity_files_us : 200000000,
 			sortname : "IdArquivo",
 		}
 
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/HandleFileListByType/?siteId=undefined&fileType=' + file_type
+		//console.log('data is',CMSVtex_general.cookie_vtex)
+
+		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/HandleFileListByType/?siteId=undefined&fileType=' + file_type  + '&' + querystring.stringify(data)
 
 		var response_sync = request('POST', uri_def,{
 			headers : {
@@ -39,7 +42,7 @@ module.exports = function( CMSVtex_general ){
 			body : querystring.stringify(data)
 		} ,
 		);
-		
+		//console.log('string body is',response_sync.body.toString(),uri_def)
 		return JSON.parse(response_sync.body.toString()).rows
 	}
 
@@ -68,9 +71,9 @@ module.exports = function( CMSVtex_general ){
 				}
 			})
 
-			console.log(response_sync)
+			//console.log(response_sync)
 			if(response_sync.statusCode > 300){
-				console.log(response_sync)	
+				//console.log(response_sync)	
 			}
 
 			if(type != 'image'){
