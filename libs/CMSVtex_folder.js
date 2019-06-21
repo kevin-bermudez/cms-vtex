@@ -206,7 +206,8 @@ module.exports = function( CMSVtex_general ){
 			return {
 				error : true,
 				folder : name_folder,
-				error : obj.message
+				error : obj.message,
+				id : data.folderId
 			}
 		}	
 		else{
