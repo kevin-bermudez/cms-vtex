@@ -104,6 +104,7 @@ module.exports = function( CMSVtex_general ){
 	 * @return {Object} Retorna un objeto con toda la información del control incluida la lista de objetos asociados, si es una coleccion, los objetos regresarán en un array dentro del objeto, la propiedad se llama "objects"
 	 */
 	cms_vtex_layout.get_list_objects = ( instance_type,instance_id ) => {
+		if(instance_type == 'html' || instance_type == 'coleccion')
 		switch(instance_type){
 			case 'html': 
 				uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
