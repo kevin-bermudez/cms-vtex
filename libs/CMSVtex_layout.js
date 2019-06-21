@@ -104,44 +104,46 @@ module.exports = function( CMSVtex_general ){
 	 * @return {Object} Retorna un objeto con toda la información del control incluida la lista de objetos asociados, si es una coleccion, los objetos regresarán en un array dentro del objeto, la propiedad se llama "objects"
 	 */
 	cms_vtex_layout.get_list_objects = ( instance_type,instance_id ) => {
-		if(instance_type == 'html' || instance_type == 'coleccion')
-		switch(instance_type){
-			case 'html': 
-				uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
-			break;
-			case 'coleccion' : 
-				uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
-			break;
+		if(instance_type == 'html' || instance_type == 'coleccion'){
+			switch(instance_type){
+				case 'html': 
+					uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
+				break;
+				case 'coleccion' : 
+					uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
+				break;
+			}
+
+			let response_sync = request('POST',uri_def,{
+					headers : {
+						'Cookie' : CMSVtex_general.cookie_vtex,
+						'Content-Type' : 'text/HTML'
+					}
+				})
+
+			let body = response_sync.body.toString();
+			let $ = cheerio.load(body);
+
+			switch(instance_type){
+				case 'html': 
+					var_return = CMSVtex_general.get_content_object( body,instance_type );
+				break;
+				case 'coleccion' : 
+					var_return = {
+						layout : $('#layout option:selected').attr('value').trim(),
+						colCount : $('#colCount').attr('value'),
+						itemCount : $('#itemCount').attr('value'),
+						isRandomize : (typeof $('#isRandomize').attr('checked') != 'undefined'),
+						showUnavailable : (typeof $('#showUnavailable').attr('checked') != 'undefined'),
+						isPaged : (typeof $('#isPaged').attr('checked') != 'undefined'),
+						objects : CMSVtex_general.get_content_object( body,instance_type )
+					}	
+				break;
+			}
+
+			return var_return;
 		}
-
-		let response_sync = request('POST',uri_def,{
-				headers : {
-					'Cookie' : CMSVtex_general.cookie_vtex,
-					'Content-Type' : 'text/HTML'
-				}
-			})
-
-		let body = response_sync.body.toString();
-		let $ = cheerio.load(body);
-
-		switch(instance_type){
-			case 'html': 
-				var_return = CMSVtex_general.get_content_object( body,instance_type );
-			break;
-			case 'coleccion' : 
-				var_return = {
-					layout : $('#layout option:selected').attr('value').trim(),
-					colCount : $('#colCount').attr('value'),
-					itemCount : $('#itemCount').attr('value'),
-					isRandomize : (typeof $('#isRandomize').attr('checked') != 'undefined'),
-					showUnavailable : (typeof $('#showUnavailable').attr('checked') != 'undefined'),
-					isPaged : (typeof $('#isPaged').attr('checked') != 'undefined'),
-					objects : CMSVtex_general.get_content_object( body,instance_type )
-				}	
-			break;
-		}
-
-		return var_return;
+		
 	}
 
 	cms_vtex_layout.get_id_new_layout = ( id_website,id_folder ) => {
