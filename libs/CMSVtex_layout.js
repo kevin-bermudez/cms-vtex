@@ -173,7 +173,7 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} template Id del template al que está o estará asociado el layout.
 	 * @param {string} body_class Esta clase es agregada al tag "body" en el html al momento de imprimir el layout
 	 * @param {Object} options Objeto de configuraciones para el layout, cuando se está realizando una actualización se debe pasar la propiedad "layoutId" con el id del layout existente a modificar.
-	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
+	 * @return {Boolean|Object} Retorna un objeto con id del layout si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
 	cms_vtex_layout.save = ( name_layout,website_id,folder_id,template,body_class,options ) => {
 		let data = {
@@ -228,7 +228,7 @@ module.exports = function( CMSVtex_general ){
 		let body = response_sync.body.toString();
 		$ = cheerio.load(body)
 
-		return ($('title').text() == 'VTEX ID Authentication') ? true : $('h3').text();
+		return ($('title').text() == 'VTEX ID Authentication') ? {new:true,id:data.layoutId} : $('h3').text();
 	}
 
 	/**
