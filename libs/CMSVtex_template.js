@@ -44,7 +44,7 @@ module.exports = function( CMSVtex_general ){
 			$ = cheerio.load(body),
 			return_var = []
 		contador = 0
-
+		console.log(uri_def)
 		$('.jqueryFileTreeBody li').each(function(){
 			//let quick_return = cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] )
 			console.log('guardando un template',(contador++) + ' de ',$('.jqueryFileTreeBody li').length)
@@ -54,7 +54,12 @@ module.exports = function( CMSVtex_general ){
 			})
 
 			if( !no_return_html ){
-				return_var[return_var.length - 1].html = (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
+				if(shelf_template){
+					return_var[return_var.length - 1].info_shelf = cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true )
+				}
+				else{
+					return_var[return_var.length - 1].html = (shelf_template) ? cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1],true ).html : cms_vtex_template.get_template( $(this).find('a').attr('href').split('=')[1] ).html
+				}
 			}
 		})	
 		return return_var	
