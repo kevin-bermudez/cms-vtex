@@ -269,7 +269,7 @@ module.exports = function( CMSVtex_general ){
 	}
 
 	/**
-	 * @method update
+	 * @method delete
 	 * @desc Elimina un custom element creado previamente en el CMS.
 	 * @param {string} view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} custom_view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
