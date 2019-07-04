@@ -23,6 +23,18 @@ module.exports = function( CMSVtex_general ){
 	 */
 	cms_vtex_folder.get = ( website,folder,only_folder,not_recursive ) => {
 		console.log('start get folder',folder)
+		let uri_edit = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderEdit?siteId='+ website +'&folderId=' + folder
+
+		let response_edit = request('GET', uri_edit, {
+			headers : {
+				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+			},
+		});
+
+		let body_edit = response_edit.body.toString(),
+			cheerio2 = cheerio.load(body_edit)
+
 		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderContentBody?dir=folder:' + website + ':' + folder + '/',
 			id_website = website,
 			is_root = root
@@ -40,8 +52,14 @@ module.exports = function( CMSVtex_general ){
 			name_split = $('.jqueryFileTree h3').text().split('/'),
 			return_var = {
 				id_website : website,
-				id_folder : folder
+				id_folder : folder,
+				defaultMarketingContext : cheerio2('#defaultMarketingContext').attr('value'),
+				defaultSearchContext : cheerio2('#defaultSearchContext').attr('value'),
+				protocols : cheerio2('#protocols option:selected').text().trim(),
+				cacheTypes : cheerio2('#cacheTypes option:selected').text().trim(),
+				requiresAuthentication : (typeof cheerio2('#requiresAuthentication').attr('checked') != 'undefined')
 			},
+
 			c_directories = $('.jqueryFileTreeBody li.directory').length
 
 		if(name_split[name_split.length - 1] == ''){
