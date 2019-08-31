@@ -2,25 +2,27 @@
 const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
+const CMSVtex_general = require('./CMSVtex_general');
 
 /**
  * Layout.
  * @module layout
  * @since 1.0.0
  * @desc Este módulo es util para manipular layouts del CMS de vtex incluido también los controles y objetos de los mismos */
-module.exports = function( CMSVtex_general ){
+module.exports = (function(){
 	cms_vtex_layout = exports;
 	/**
 	 * @method get
 	 * @desc Obtiene la información relacionada a un layout.
 	 * @param {string} id_layout Id del layout que se quiere obtener.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object} Con toda la información del layout incluidos los placeholders, controles y objetos del mismo
 	 */
-	cms_vtex_layout.get = ( id_layout ) => {
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/LayoutContent?layoutId=' + id_layout,
+	cms_vtex_layout.get = ( id_layout,config ) => {
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/LayoutContent?layoutId=' + id_layout,
 			response_sync = request('GET',uri_def,{
 				headers : {
-					'Cookie' : CMSVtex_general.cookie_vtex,
+					'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 					'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 				}
 			})
@@ -58,11 +60,11 @@ module.exports = function( CMSVtex_general ){
 
 					if(index_placeholder !== -1){
 						if(tipo == 'coleccion'){
-							info_control = cms_vtex_layout.get_list_objects( tipo,$(this).attr('instanceid') )
+							info_control = cms_vtex_layout.get_list_objects( tipo,$(this).attr('instanceid'),config )
 							objects = info_control.objects
 						}
 						else{
-							objects = cms_vtex_layout.get_list_objects( tipo,$(this).attr('instanceid') )
+							objects = cms_vtex_layout.get_list_objects( tipo,$(this).attr('instanceid'),config )
 						}
 						return_var.placeholders[index_placeholder].controls.push({
 							type : tipo,
@@ -101,22 +103,23 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Obtiene la lista de objetos definidos para una instancia de control determinada.
 	 * @param {string} instance_type El tipo de control que se quiere consultar:html o coleccion.
 	 * @param {string} instance_id El id del control que se quiere consultar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object} Retorna un objeto con toda la información del control incluida la lista de objetos asociados, si es una coleccion, los objetos regresarán en un array dentro del objeto, la propiedad se llama "objects"
 	 */
-	cms_vtex_layout.get_list_objects = ( instance_type,instance_id ) => {
+	cms_vtex_layout.get_list_objects = ( instance_type,instance_id,config ) => {
 		if(instance_type == 'html' || instance_type == 'coleccion'){
 			switch(instance_type){
 				case 'html': 
-					uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
+					uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
 				break;
 				case 'coleccion' : 
-					uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
+					uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
 				break;
 			}
 
 			let response_sync = request('POST',uri_def,{
 					headers : {
-						'Cookie' : CMSVtex_general.cookie_vtex,
+						'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 						'Content-Type' : 'text/HTML'
 					}
 				})
@@ -146,12 +149,12 @@ module.exports = function( CMSVtex_general ){
 		
 	}
 
-	cms_vtex_layout.get_id_new_layout = ( id_website,id_folder ) => {
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/AddLayout?siteId=' + id_website + '&folderParentId=' + id_folder
+	cms_vtex_layout.get_id_new_layout = ( id_website,id_folder,config ) => {
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/AddLayout?siteId=' + id_website + '&folderParentId=' + id_folder
 
 		let response_sync = request('GET',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			}
 		})
@@ -173,9 +176,10 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} template Id del template al que está o estará asociado el layout.
 	 * @param {string} body_class Esta clase es agregada al tag "body" en el html al momento de imprimir el layout
 	 * @param {Object} options Objeto de configuraciones para el layout, cuando se está realizando una actualización se debe pasar la propiedad "layoutId" con el id del layout existente a modificar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|Object} Retorna un objeto con id del layout si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.save = ( name_layout,website_id,folder_id,template,body_class,options ) => {
+	cms_vtex_layout.save = ( name_layout,website_id,folder_id,template,body_class,options,config ) => {
 		let data = {
 			hdnAction : 'Update',
 			nameLayout : name_layout,
@@ -206,20 +210,20 @@ module.exports = function( CMSVtex_general ){
 				data.actionForm = 'Update'
 			}	
 			else{
-				data.layoutId = cms_vtex_layout.get_id_new_layout( website_id,folder_id )
+				data.layoutId = cms_vtex_layout.get_id_new_layout( website_id,folder_id,config )
 				data.actionForm = 'Save'
 			}		
 		}
 		else{
-			data.layoutId = cms_vtex_layout.get_id_new_layout( website_id,folder_id )
+			data.layoutId = cms_vtex_layout.get_id_new_layout( website_id,folder_id,config )
 			data.actionForm = 'Save'
 		}
 
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/SaveLayout'
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/SaveLayout'
 
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify( data )
@@ -236,10 +240,11 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Elimina un layout del CMS de Vtex.
 	 * @param {string} id_website Id del website al que pertenece el layout.
 	 * @param {string} id_layout Id del layout que se quiere eliminar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si elimina exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.delete = ( id_website,id_layout ) => {
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/LayoutDel'
+	cms_vtex_layout.delete = ( id_website,id_layout,config ) => {
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/LayoutDel'
 
 		let data = {
 			siteId : id_website,
@@ -249,7 +254,7 @@ module.exports = function( CMSVtex_general ){
 
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify( data )
@@ -276,7 +281,7 @@ module.exports = function( CMSVtex_general ){
 		//return body
 	}
 
-	cms_vtex_layout.save_control = ( layout ) => {
+	cms_vtex_layout.save_control = ( layout,config ) => {
 		selected_list = ''
 		control_number = 1
 
@@ -300,7 +305,7 @@ module.exports = function( CMSVtex_general ){
 			control_number++
 		})
 
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveLayoutSetting'
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/SaveLayoutSetting'
 
 		let data = {
 	        coltrolIdSelectedList: selected_list,
@@ -311,7 +316,7 @@ module.exports = function( CMSVtex_general ){
 
 		response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify(data)
@@ -323,14 +328,14 @@ module.exports = function( CMSVtex_general ){
 		return ($('title').text() == 'VTEX ID Authentication') ? true : $('title').text();
 	}
 
-	cms_vtex_layout.save_config_coleccion = ( id_control,config,update,delete_ ) => {
+	cms_vtex_layout.save_config_coleccion = ( id_control,config_coleccion,update,delete_,config ) => {
 		if(update){
 			console.log('yes update')
-			let control_data = cms_vtex_layout.get_list_objects( 'coleccion',id_control );
+			let control_data = cms_vtex_layout.get_list_objects( 'coleccion',id_control,config );
 
-			let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',id_control )
+			let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',id_control,config )
 
-			layout = (config.layout) ? config.layout : control_data.layout
+			layout = (config_coleccion.layout) ? config_coleccion.layout : control_data.layout
 			colCount = control_data.colCount
 			itemCount = control_data.itemCount
 			default_showUnavailable = control_data.showUnavailable
@@ -338,7 +343,7 @@ module.exports = function( CMSVtex_general ){
 			default_isPaged = control_data.isPaged
 
 			if(delete_){
-				default_contentList = JSON.stringify(cms_vtex_layout.generate_content_list_coleccion( config,id_control ))
+				default_contentList = JSON.stringify(cms_vtex_layout.generate_content_list_coleccion( config_coleccion,id_control ))
 			}
 			else{
 				default_contentList = JSON.stringify(cms_vtex_layout.generate_content_list_coleccion( actual_objects,id_control ))
@@ -346,9 +351,9 @@ module.exports = function( CMSVtex_general ){
 				
 		}
 		else{
-			layout = config.layout
-			colCount = config.colCount
-			itemCount = config.itemCount
+			layout = config_coleccion.layout
+			colCount = config_coleccion.colCount
+			itemCount = config_coleccion.itemCount
 			default_showUnavailable = false
 			default_isRandomize = false
 			default_isPaged = false
@@ -357,27 +362,27 @@ module.exports = function( CMSVtex_general ){
 
 		let data = {
 			viewPartInstanceId : id_control,
-			FormShelfConfigId : '',
+			FormShelfconfig_coleccionId : '',
 			layout,
 			colCount,
 			itemCount,
-			showUnavailable : (config.showUnavailable) ? config.showUnavailable : default_showUnavailable,
-			isRandomize : (config.isRandomize) ? config.isRandomize : default_isRandomize,
-			isPaged : (config.isPaged) ? config.isPaged : default_isPaged,
-			//totalRows : (config.totalRows) ? config.totalRows : 1,
-			contentList : (config.contentList) ? config.contentList : default_contentList,
-			contentListInicial : (config.contentListInicial) ? config.contentListInicial : default_contentList,
+			showUnavailable : (config_coleccion.showUnavailable) ? config_coleccion.showUnavailable : default_showUnavailable,
+			isRandomize : (config_coleccion.isRandomize) ? config_coleccion.isRandomize : default_isRandomize,
+			isPaged : (config_coleccion.isPaged) ? config_coleccion.isPaged : default_isPaged,
+			//totalRows : (config_coleccion.totalRows) ? config_coleccion.totalRows : 1,
+			contentList : (config_coleccion.contentList) ? config_coleccion.contentList : default_contentList,
+			contentListInicial : (config_coleccion.contentListInicial) ? config_coleccion.contentListInicial : default_contentList,
 			isCustomViewPart : 'False',
 
 		}
 
 		//console.log('data save is',data)
 		
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveControlConfig';
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + 'admin/a/PortalManagement/SaveControlconfig_coleccion';
 
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify(data)
@@ -402,14 +407,15 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} name_control Nombre del nuevo control.
 	 * @param {string} type_control Tipo del nuevo control:html o coleccion.
 	 * @param {Object} [content_layout_us] Este objecto se le pasa a la función con la información del layout sobre el que se va a agregar el control si se quiere ahorrar tiempo de la misma buscándola.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.add_control = ( layout_id,placeholder_id,name_control,type_control,content_layout_us,config_shelf ) => {
+	cms_vtex_layout.add_control = ( layout_id,placeholder_id,name_control,type_control,content_layout_us,config_shelf,config ) => {
 		if(content_layout_us){
 			layout = content_layout_us
 		}
 		else{
-			layout = cms_vtex_layout.get( layout_id )
+			layout = cms_vtex_layout.get( layout_id,config )
 		}
 
 		let placeholder_add_index = layout.placeholders.map( ( placeholder) => {
@@ -423,15 +429,15 @@ module.exports = function( CMSVtex_general ){
 				objects : []
 			})
 			
-			let save_layout = cms_vtex_layout.save_control( layout )
+			let save_layout = cms_vtex_layout.save_control( layout,config )
 
 			if(type_control == 'coleccion'){
-				let new_layout_data = cms_vtex_layout.get( layout_id );
+				let new_layout_data = cms_vtex_layout.get( layout_id,config );
 				let index_new_control = new_layout_data.placeholders[placeholder_add_index].controls.map( ( control ) => {
 					return control.name;
 				}).indexOf( name_control );
 
-				return cms_vtex_layout.save_config_coleccion( new_layout_data.placeholders[placeholder_add_index].controls[index_new_control].instance,config_shelf );
+				return cms_vtex_layout.save_config_coleccion( new_layout_data.placeholders[placeholder_add_index].controls[index_new_control].instance,config_shelf,false,false,confiig );
 			}
 			else{
 				return save_layout;
@@ -449,21 +455,22 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} layout_id Id del layout al que pertenece el control de colección que se va a modificar.
 	 * @param {string} placeholder_id Id del placeholder al que pertenece el control de colección que se va a modificar.
 	 * @param {string} id_control Id del control que se va a modificar.
-	 * @param {Object} config objeto con la información del nuevo control.
+	 * @param {Object} config_control objeto con la información del nuevo control.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX, si el objeto config está vacío retorna false.
 	 */
-	cms_vtex_layout.update_control_coleccion = ( layout_id,placeholder_id,id_control,config ) => {
-		if(config.name){
-			result_rename = cms_vtex_layout.rename_control( layout_id,placeholder_id,id_control,config.name );
-			delete config.name
+	cms_vtex_layout.update_control_coleccion = ( layout_id,placeholder_id,id_control,config_control,config ) => {
+		if(config_control.name){
+			result_rename = cms_vtex_layout.rename_control( layout_id,placeholder_id,id_control,config_control.name,config );
+			delete config_control.name
 		}
 
-		if(JSON.stringify(config) == '{}'){
+		if(JSON.stringify(config_control) == '{}'){
 			if(typeof result_rename != 'undefined') return result_rename;
 			else return false;
 		}
 		else{
-			return cms_vtex_layout.save_config_coleccion( id_control,config,true );
+			return cms_vtex_layout.save_config_coleccion( id_control,config_control,true,false,config_control,config );
 		}
 		//
 
@@ -477,14 +484,15 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} id_control Id del control que se va a renombrar.
 	 * @param {string} name_control Nuevo nombre para el control.
 	 * @param {Object} [content_layout_us] Este objecto se le pasa a la función con la información del layout sobre el que se va a agregar el control si se quiere ahorrar tiempo de la misma buscándola.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.rename_control = ( layout_id,placeholder_id,id_control,name_control,content_layout_us ) => {
+	cms_vtex_layout.rename_control = ( layout_id,placeholder_id,id_control,name_control,content_layout_us,config ) => {
 		if(content_layout_us){
 			layout = content_layout_us
 		}
 		else{
-			layout = cms_vtex_layout.get( layout_id )
+			layout = cms_vtex_layout.get( layout_id,config )
 		}
 
 		let placeholder_delete_index = layout.placeholders.map( ( placeholder) => {
@@ -501,7 +509,7 @@ module.exports = function( CMSVtex_general ){
 			if( index_control_delete !== -1 ){
 				layout.placeholders[placeholder_delete_index].controls[index_control_delete].name = name_control
 
-				let rename_control = cms_vtex_layout.save_control( layout );
+				let rename_control = cms_vtex_layout.save_control( layout,config );
 				return rename_control;
 			}	
 			else{
@@ -520,14 +528,15 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} placeholder_id Id del placeholder al que pertenece el control que se desea eliminar.
 	 * @param {string} id_control Id del control que se va a eliminar.
 	 * @param {Object} [content_layout_us] Este objecto se le pasa a la función con la información del layout sobre el que se va a agregar el control si se quiere ahorrar tiempo de la misma buscándola.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.delete_control = ( layout_id,placeholder_id,id_control,content_layout_us ) => {
+	cms_vtex_layout.delete_control = ( layout_id,placeholder_id,id_control,content_layout_us,config ) => {
 		if(content_layout_us){
 			layout = content_layout_us
 		}
 		else{
-			layout = cms_vtex_layout.get( layout_id )
+			layout = cms_vtex_layout.get( layout_id,config )
 		}
 
 		let placeholder_delete_index = layout.placeholders.map( ( placeholder) => {
@@ -544,7 +553,7 @@ module.exports = function( CMSVtex_general ){
 			if( index_control_delete !== -1 ){
 				layout.placeholders[placeholder_delete_index].controls.splice(index_control_delete,1)
 
-				let delete_control = cms_vtex_layout.save_control( layout );
+				let delete_control = cms_vtex_layout.save_control( layout,config );
 				return delete_control;
 			}	
 			else{
@@ -563,10 +572,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} instance_type Siempre será "html"
 	 * @param {Object} info_new Información del nueva del objeto.
 	 * @param {string} [id_object] Este parámetro se pasa cuando la operación es de modificación, indicando el id del objeto que se va a modificar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.save_object = ( instance_id,instance_type,info_new,id_object ) => {
-		let actual_objects = cms_vtex_layout.get_list_objects( instance_type,instance_id ),
+	cms_vtex_layout.save_object = ( instance_id,instance_type,info_new,id_object,config ) => {
+		let actual_objects = cms_vtex_layout.get_list_objects( instance_type,instance_id,config ),
 			html_content_list = []
 
 		indice = 0
@@ -646,10 +656,10 @@ module.exports = function( CMSVtex_general ){
 			htmlContentListInicial : (typeof initial_content != 'undefined') ? JSON.stringify(initial_content) : '[]'
 		}
 
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/SaveHtmlConfig';
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/SaveHtmlConfig';
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify( data )
@@ -699,10 +709,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} instance_id Id del control sobre el que se va a guardar el objeto.
 	 * @param {Object} info_new Información nueva del objeto.
 	 * @param {string} [id_object] Este parámetro se pasa cuando la operación es de modificación, indicando el id del objeto que se va a modificar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.save_object_coleccion = ( instance_id,info_new,id_object ) => {
-		let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id ),
+	cms_vtex_layout.save_object_coleccion = ( instance_id,info_new,id_object,config ) => {
+		let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id,config ),
 			shelf_content_list = cms_vtex_layout.generate_content_list_coleccion( actual_objects,instance_id,id_object )
 		
 
@@ -728,7 +739,7 @@ module.exports = function( CMSVtex_general ){
 			actual_objects.contentList = JSON.stringify(shelf_content_list)
 			actual_objects.contentListInicial = (typeof initial_content_list != 'undefined') ? JSON.stringify(initial_content_list) : ''
 
-			return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects )
+			return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects,false,false,config )
 		}
 		else{
 			//console.log(actual_objects.objects)
@@ -771,7 +782,7 @@ module.exports = function( CMSVtex_general ){
 				actual_objects.contentList = JSON.stringify(shelf_content_list)
 				actual_objects.contentListInicial = JSON.stringify(initial_content_list)
 
-				return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects )
+				return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects,false,false,config )
 			}
 
 		}
@@ -787,10 +798,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} instance_id Id del control al que pertenece el objeto que se va a eliminar.
 	 * @param {string} instance_type Siempre será html.
 	 * @param {string} id_object Id del objeto que se va a eliminar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.delete_object = ( instance_id,instance_type,id_object ) => {
-		let actual_objects = cms_vtex_layout.get_list_objects( instance_type,instance_id ),
+	cms_vtex_layout.delete_object = ( instance_id,instance_type,id_object,config ) => {
+		let actual_objects = cms_vtex_layout.get_list_objects( instance_type,instance_id,config ),
 			html_content_list = [],
 			initial_content_list = []
 
@@ -848,10 +860,10 @@ module.exports = function( CMSVtex_general ){
 			htmlContentListInicial : (typeof initial_content_list != 'undefined') ? JSON.stringify(initial_content_list) : '[]'
 		}
 
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/SaveHtmlConfig';
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/SaveHtmlConfig';
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify( data )
@@ -867,10 +879,11 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Elimina un objeto de tipo colección perteneciente a un control determinado.
 	 * @param {string} instance_id Id del control al que pertenece el objeto que se va a eliminar.
 	 * @param {string} id_object Id del objeto que se va a eliminar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Retorna true si guarda exitosamente de lo contrario devuelve un string con el mensaje que retorna VTEX.
 	 */
-	cms_vtex_layout.delete_object_coleccion = ( instance_id,id_object ) => {
-		let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id );
+	cms_vtex_layout.delete_object_coleccion = ( instance_id,id_object,config ) => {
+		let actual_objects = cms_vtex_layout.get_list_objects( 'coleccion',instance_id,config );
 
 		let index_object = actual_objects.objects.map( ( actual_object ) => {
 			return actual_object.id;
@@ -882,11 +895,11 @@ module.exports = function( CMSVtex_general ){
 		else{
 			actual_objects.objects.splice( index_object,1 );
 			//console.log(actual_objects.objects)
-			return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects,true,true )
+			return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects,true,true,config )
 		}
 
 		//
 	}
 
 	return cms_vtex_layout;
-}
+})()

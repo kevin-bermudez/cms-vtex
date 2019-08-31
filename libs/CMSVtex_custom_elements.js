@@ -6,28 +6,29 @@ const CMSVtex_layout = require('./CMSVtex_layout');
 //var http = require('http');
 const fs = require('fs');
 const path = require('path');
+const CMSVtex_general = require('./CMSVtex_general');
 
 /**
  * Custom Elements.
  * @module custom_elements
  * @since 1.0.0
  * @desc Este módulo es util para manipular los custom elements del CMS de vtex incluidos también los objetos de los mismos */
-module.exports = function( CMSVtex_general ){
+module.exports = (function(){
 	cms_vtex_custom_elements = exports;
-	cms_vtex_custom_elements.get_list_objects = ( instance_type,instance_id ) => {
+	cms_vtex_custom_elements.get_list_objects = ( instance_type,instance_id,config ) => {
 		//si es HTML
 		if(instance_type == 'html'){
-			uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
+			uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/GetFormHtmlConfig?viewInstanceId=' + instance_id
 		}
 		else{
-			uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
+			uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
 		}
 		data = {
 			isCustomViewPart : 'True'
 		}
 		let response_sync = request('POST',uri_def,{
 				headers : {
-					'Cookie' : CMSVtex_general.cookie_vtex,
+					'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 					'Content-Type' : "application/x-www-form-urlencoded; charset=UTF-8"
 				},
 				body : querystring.stringify(data)
@@ -43,10 +44,11 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Obtiene una lista de los custom elements creados en el CMS de Vtex
 	 * @param {int} [quantity_elements_us] Cuantos custom elements se quieren recibir como respuesta.
 	 * @param {Boolean} [width_content] Si se quieren obtener los objectos de cada custom element.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object[]} Con toda la información de los custom elements incluidos los objetos de los mismos si así se requiere.
 	 */
-	cms_vtex_custom_elements.get = ( quantity_elements_us,width_content ) => {
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/HandleCustomViewPartList/?siteId=';
+	cms_vtex_custom_elements.get = ( quantity_elements_us,width_content,config ) => {
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/HandleCustomViewPartList/?siteId=';
 
 		let data = {
 			page : 1,
@@ -56,7 +58,7 @@ module.exports = function( CMSVtex_general ){
 
 		var response_sync = request('POST', uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify(data)
@@ -81,7 +83,7 @@ module.exports = function( CMSVtex_general ){
 				//console.log(response_vtex[index].cell[2],response_vtex[index].cell[4])
 				//let type_instance = response_vtex[index].cell[4];
 				//console.log('el tipo lo trae como ',type_instance)
-				var_return[var_return.length - 1].objects = cms_vtex_custom_elements.get_list_objects( response_vtex[index].cell[4],response_vtex[index].cell[1] );
+				var_return[var_return.length - 1].objects = cms_vtex_custom_elements.get_list_objects( response_vtex[index].cell[4],response_vtex[index].cell[1],config );
 			}
 		}
 		
@@ -95,14 +97,15 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} instance_id Identificador devulto por Vtex.
 	 * @param {string} view_part_id Segundo identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {Boolean} coleccion Se pasa como true cuando el tipo de custom element del que se quiere obtener la información es Colección.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object} Con toda la información básica del custom element.
 	 */
-	cms_vtex_custom_elements.get_info_instance = ( instance_id,view_part_id,coleccion ) => {
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/AddCustomViewPart?siteId=&customViewPartId=' + instance_id + '&viewPartId=' + view_part_id
+	cms_vtex_custom_elements.get_info_instance = ( instance_id,view_part_id,coleccion,config ) => {
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/AddCustomViewPart?siteId=&customViewPartId=' + instance_id + '&viewPartId=' + view_part_id
 		//console.log(uri_def)
 		let response_sync = request('GET',uri_def,{
 				headers : {
-					'Cookie' : CMSVtex_general.cookie_vtex,
+					'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 					'Content-Type' : "application/x-www-form-urlencoded; charset=UTF-8"
 				}
 			})
@@ -119,11 +122,11 @@ module.exports = function( CMSVtex_general ){
 		}
 
 		if(coleccion){
-			let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=18b70f99-9ad4-40fa-a2f1-5646dbe5a023'
+			let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/GetFormShelfConfig?viewInstanceId=' + instance_id
 			//console.log(uri_def)
 			let response_sync = request('POST',uri_def,{
 					headers : {
-						'Cookie' : CMSVtex_general.cookie_vtex,
+						'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 						'Content-Type' : "application/x-www-form-urlencoded; charset=UTF-8"
 					},
 					body : querystring.stringify({
@@ -177,7 +180,7 @@ module.exports = function( CMSVtex_general ){
 		return shelf_content_list;
 	}
 
-	cms_vtex_custom_elements.save = ( instance_type,info_new,view_part_id,instance_id ) => {
+	cms_vtex_custom_elements.save = ( instance_type,info_new,view_part_id,instance_id,config ) => {
 		//instance_id = ''
 		let data = {
 			viewPartInstanceId : (instance_id) ? instance_id : '',
@@ -216,7 +219,7 @@ module.exports = function( CMSVtex_general ){
 
 		//console.log(data)
 
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/'
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + 'admin/a/PortalManagement/'
 		if(instance_type == 'html'){
 			uri_def += 'SaveHtmlConfig'
 		}
@@ -227,7 +230,7 @@ module.exports = function( CMSVtex_general ){
 
 		let sync_response = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify(data)
@@ -249,10 +252,11 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Agrega un custom element.
 	 * @param {string} instance_type Tipo de custom element: html o coleccion
 	 * @param {Object} info_new Con la información de configuración para el custom element según corresponda.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {string|Boolean} Devuelve true si Vtex no retornó ningún error de lo contrario retorna un string con el mensaje d error generado por Vtex
 	 */
-	cms_vtex_custom_elements.add = ( instance_type,info_new ) => {
-		return cms_vtex_custom_elements.save( instance_type,info_new );
+	cms_vtex_custom_elements.add = ( instance_type,info_new,config ) => {
+		return cms_vtex_custom_elements.save( instance_type,info_new,false,false,config );
 	}
 
 	/**
@@ -262,10 +266,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {Object} info_new Con la información de la nueva configuración para el custom element según corresponda.
 	 * @param {string} view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} instance_id Identificador devuelto por Vtex y otros métodos de este módulo.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {string|Boolean} Devuelve true si Vtex no retornó ningún error de lo contrario retorna un string con el mensaje d error generado por Vtex
 	 */
-	cms_vtex_custom_elements.update = ( instance_type,info_new,view_part_id,instance_id ) => {
-		return cms_vtex_custom_elements.save( instance_type,info_new,view_part_id,instance_id );
+	cms_vtex_custom_elements.update = ( instance_type,info_new,view_part_id,instance_id,config ) => {
+		return cms_vtex_custom_elements.save( instance_type,info_new,view_part_id,instance_id,config );
 	}
 
 	/**
@@ -273,20 +278,21 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Elimina un custom element creado previamente en el CMS.
 	 * @param {string} view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} custom_view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean} True si se completa la opción correctamente o de lo contrario false.
 	 */
-	cms_vtex_custom_elements.delete = ( view_part_id,custom_view_part_id ) => {
+	cms_vtex_custom_elements.delete = ( view_part_id,custom_view_part_id,config ) => {
 		let data = {
 			textConfirm : 'yes',
 			customViewPartId : custom_view_part_id,
 			viewPartId : view_part_id
 		}
 
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/DeleteCustomViewPart';
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/DeleteCustomViewPart';
 
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify(data)
@@ -305,9 +311,10 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} info_new Configuración del nuevo objeto html.
 	 * @param {string} [id_object] Identificador del objeto en caso de que la acción requerida sea una actualización
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {string|Boolean} Devuelve true si Vtex no retornó ningún error de lo contrario retorna un string con el mensaje d error generado por Vtex
 	 */
-	cms_vtex_custom_elements.save_object_html = ( instance_id,view_part_id,info_new,id_object ) => {
+	cms_vtex_custom_elements.save_object_html = ( instance_id,view_part_id,info_new,id_object,config ) => {
 		list_contents_add_us = (JSON.stringify(info_new).substr(0,1) == '{') ? new Array(info_new) : info_new
 		list_contents_add_def = [];
 
@@ -330,7 +337,7 @@ module.exports = function( CMSVtex_general ){
 		} )
 
 		if(id_object){
-			let actual_objects = cms_vtex_custom_elements.get_list_objects( 'html',instance_id );
+			let actual_objects = cms_vtex_custom_elements.get_list_objects( 'html',instance_id,config );
 
 			let index_object_actual = actual_objects.map( (actual_object) => {
 				return actual_object.id
@@ -359,7 +366,7 @@ module.exports = function( CMSVtex_general ){
 			list_contents_add_def[0].Id = actual_objects[index_object_actual].id
 		}
 
-		let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id );
+		let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,false,config );
 		
 		return cms_vtex_custom_elements.save('html',{
 			customViewPartName : info_instance.name,
@@ -367,7 +374,7 @@ module.exports = function( CMSVtex_general ){
 			htmlContentList : list_contents_add_def,
 			htmlContentListInicial : (typeof initial_content != 'undefined') ? initial_content : ''
 
-		},view_part_id,instance_id)
+		},view_part_id,instance_id,config)
 
 	}
 
@@ -378,10 +385,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} info_new Configuración del nuevo objeto coleccion.
 	 * @param {string} [id_object] Identificador del objeto en caso de que la acción requerida sea una actualización
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {string|Boolean} Devuelve true si Vtex no retornó ningún error de lo contrario retorna un string con el mensaje d error generado por Vtex
 	 */
-	cms_vtex_custom_elements.save_object_coleccion = ( instance_id,view_part_id,info_new,id_object ) => {
-		let actual_objects = cms_vtex_custom_elements.get_list_objects( 'coleccion',instance_id ),
+	cms_vtex_custom_elements.save_object_coleccion = ( instance_id,view_part_id,info_new,id_object,config ) => {
+		let actual_objects = cms_vtex_custom_elements.get_list_objects( 'coleccion',instance_id,config ),
 			shelf_content_list = cms_vtex_custom_elements.generate_content_list_coleccion( actual_objects,instance_id,id_object )
 
 		if(!id_object){
@@ -406,7 +414,7 @@ module.exports = function( CMSVtex_general ){
 			contentList = JSON.stringify(shelf_content_list)
 			contentListInicial = ''
 
-			let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true );
+			let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true,config );
 
 			//console.log( 'info instance',info_instance )
 					
@@ -422,7 +430,7 @@ module.exports = function( CMSVtex_general ){
 				contentList : contentList,
 				contentListInicial : ''
 
-			},view_part_id,instance_id)
+			},view_part_id,instance_id,config)
 		}
 		else{
 			//console.log(actual_objects.objects)
@@ -466,7 +474,7 @@ module.exports = function( CMSVtex_general ){
 
 				//return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects )
 
-				let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true );
+				let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true,config );
 
 				//console.log( 'info instance',info_instance )
 						
@@ -482,7 +490,7 @@ module.exports = function( CMSVtex_general ){
 					contentList : JSON.stringify(shelf_content_list),
 					contentListInicial : JSON.stringify(initial_content_list)
 
-				},view_part_id,instance_id)
+				},view_part_id,instance_id,config)
 			}
 
 		}
@@ -498,10 +506,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} instance_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} id_object Identificador del objeto que se quiere eliminar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {string|Boolean} Devuelve true si Vtex no retornó ningún error de lo contrario retorna un string con el mensaje d error generado por Vtex
 	 */
-	cms_vtex_custom_elements.delete_object_html = ( instance_id,view_part_id,id_object ) => {
-		let actual_objects = cms_vtex_custom_elements.get_list_objects( 'html',instance_id ),
+	cms_vtex_custom_elements.delete_object_html = ( instance_id,view_part_id,id_object,config ) => {
+		let actual_objects = cms_vtex_custom_elements.get_list_objects( 'html',instance_id,config ),
 			html_content_list = [],
 			initial_content_list = []
 
@@ -549,14 +558,14 @@ module.exports = function( CMSVtex_general ){
 			indice2++
 		})
 
-		let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id );
+		let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,false,config );
 		
 		return cms_vtex_custom_elements.save('html',{
 			customViewPartName : info_instance.name,
 			customViewPartTagName : info_instance.tag_name,
 			htmlContentList : html_content_list,
 			htmlContentListInicial : initial_content_list
-		},view_part_id,instance_id)
+		},view_part_id,instance_id,config)
 	}
 
 	/**
@@ -565,10 +574,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} instance_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} view_part_id Identificador devuelto por Vtex y otros métodos de este módulo.
 	 * @param {string} id_object Identificador del objeto que se quiere eliminar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {string|Boolean} Devuelve true si Vtex no retornó ningún error de lo contrario retorna un string con el mensaje d error generado por Vtex
 	 */
-	cms_vtex_custom_elements.delete_object_coleccion = ( instance_id,view_part_id,id_object ) => {
-		let actual_objects = cms_vtex_custom_elements.get_list_objects( 'coleccion',instance_id );
+	cms_vtex_custom_elements.delete_object_coleccion = ( instance_id,view_part_id,id_object,config ) => {
+		let actual_objects = cms_vtex_custom_elements.get_list_objects( 'coleccion',instance_id,config );
 		console.log(actual_objects)
 		let index_object = actual_objects.map( ( actual_object ) => {
 			return actual_object.id;
@@ -583,7 +593,7 @@ module.exports = function( CMSVtex_general ){
 			contentList.splice( index_object,1 );
 			console.log(contentList,contentListInicial)
 
-			let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true );
+			let info_instance = cms_vtex_custom_elements.get_info_instance( instance_id,view_part_id,true,config );
 			return cms_vtex_custom_elements.save('coleccion',{
 				customViewPartName : info_instance.name,
 				customViewPartTagName : info_instance.tag_name,
@@ -596,10 +606,10 @@ module.exports = function( CMSVtex_general ){
 				contentList : JSON.stringify(contentList),
 				contentListInicial : JSON.stringify(contentListInicial)
 
-			},view_part_id,instance_id)
+			},view_part_id,instance_id,config)
 			//return cms_vtex_layout.save_config_coleccion( instance_id,actual_objects,true,true )
 		}
 	}
 
 	return cms_vtex_custom_elements;
-}
+})()

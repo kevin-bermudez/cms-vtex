@@ -2,6 +2,7 @@
 const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
+const CMSVtex_general = require('./CMSVtex_general');
 
 /**
  * Folder.
@@ -9,9 +10,9 @@ const querystring = require('querystring');
  * @since 1.0.0
  * @desc Este módulo es util para manipular las carpetas que se encuentran dentro de Sites_and_Channels en el CMS de vtex
  */
-module.exports = function( CMSVtex_general ){
+module.exports = (function(){
 	cms_vtex_folder = exports;
-	const CMSVtex_layout = require('./CMSVtex_layout')( exports,CMSVtex_general );
+	const CMSVtex_layout = require('./CMSVtex_layout');
 	/**
 	 * @method get
 	 * @desc Obtiene la lista completa de folders con sus layouts correspondientes hijos de un folder determinado
@@ -19,15 +20,16 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} folder Id del folder del que se quiere obtener la información.
 	 * @param {Boolean} [only_folder] Verdadero si quiero obtener layouts falso de lo contrario.
 	 * @param {Boolean|String} [not_recursive] Verdadero si no quiero que sea recursiva falso de lo contrario y force si es el root y no quiero que sea recursiva.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object[]} Array con los folders y layouts de un folder padre
 	 */
-	cms_vtex_folder.get = ( website,folder,only_folder,not_recursive ) => {
+	cms_vtex_folder.get = ( website,folder,only_folder,not_recursive,config ) => {
 		console.log('start get folder',folder)
-		let uri_edit = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderEdit?siteId='+ website +'&folderId=' + folder
+		let uri_edit = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/FolderEdit?siteId='+ website +'&folderId=' + folder
 
 		let response_edit = request('GET', uri_edit, {
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 		});
@@ -35,14 +37,14 @@ module.exports = function( CMSVtex_general ){
 		let body_edit = response_edit.body.toString(),
 			cheerio2 = cheerio.load(body_edit)
 
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderContentBody?dir=folder:' + website + ':' + folder + '/',
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/FolderContentBody?dir=folder:' + website + ':' + folder + '/',
 			id_website = website,
 			is_root = root
 
 
 		let response_sync = request('POST', uri_def, {
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 		});
@@ -71,7 +73,26 @@ module.exports = function( CMSVtex_general ){
 			return_var.name = name_split[name_split.length - 1]
 		}
 
-		if(only_folder){
+		if(!only_folder && $('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
+			return_var.layouts = []
+			$('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').each(function(){
+				let layout_tmp = CMSVtex_layout.get( $(this).find('.IconDel').attr('href').split('layoutId=')[1],config );
+				console.log(layout_tmp)
+				return_var.layouts.push(layout_tmp);
+			})
+		}
+
+		if(!not_recursive && $('.jqueryFileTreeBody li.directory').length > 0){
+			return_var.folders = []
+			$('.jqueryFileTreeBody li.directory').each(function(website_int){
+				let id_folder_tmp = $(this).find('.IconDel').attr('href').split('?folderId=')[1]
+				let new_folder_tmp = cms_vtex_folder.get(website,id_folder_tmp,only_folder,not_recursive,config)
+				return_var.folders.push( new_folder_tmp )
+			})
+		}
+
+
+		/*if(only_folder){
 			if((!not_recursive && c_directories > 0) || (return_var.root && (typeof not_recursive != 'undefined' && not_recursive != 'force'))){
 				return_var.folders = []
 				$('.jqueryFileTreeBody li.directory').each(function(){
@@ -99,25 +120,18 @@ module.exports = function( CMSVtex_general ){
 		}
 		
 		
-		if(!only_folder && $('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').length > 0){
-			return_var.layouts = []
-			$('.jqueryFileTreeBody li.file.page-layout,.jqueryFileTreeBody li.file.page-layout-default').each(function(){
-				let layout_tmp = CMSVtex_layout.get( $(this).find('.IconDel').attr('href').split('layoutId=')[1] );
-				console.log(layout_tmp)
-				return_var.layouts.push(layout_tmp);
-			})
-		}
+		*/
 
 		console.log('end get folder',folder);
 		return return_var;
 	}
 
-	cms_vtex_folder.get_id_new_folder = ( website,folder_parent ) => {
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/AddFolder?siteId=' + website + '&folderParentId=' + folder_parent
+	cms_vtex_folder.get_id_new_folder = ( website,folder_parent,config ) => {
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/AddFolder?siteId=' + website + '&folderParentId=' + folder_parent
 
 		let response_sync = request('GET',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			}
 		})
@@ -136,9 +150,10 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} website_id Id del website al que pertenecerá el folder.
 	 * @param {string} parent_id Id del folder padre del nuevo folder.
 	 * @param {Object} [options] Objeto con propiedades opcionales para configurar el nuevo folder
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {string} Con el mensaje de error generado por Vtex o con un mensaje de éxito que incluye el nombre del nuevo folder.
 	 */
-	cms_vtex_folder.save = ( name_folder,website_id,parent_id,options ) => {
+	cms_vtex_folder.save = ( name_folder,website_id,parent_id,options,config ) => {
 		/*
 			protocols
 				1 -> HTTP
@@ -195,20 +210,20 @@ module.exports = function( CMSVtex_general ){
 				data.isPersisted = 'True'
 			}
 			else{
-				data.folderId = cms_vtex_folder.get_id_new_folder( website_id,parent_id )
+				data.folderId = cms_vtex_folder.get_id_new_folder( website_id,parent_id,config )
 				data.isPersisted = 'False'
 			}
 		}
 		else{
-			data.folderId = cms_vtex_folder.get_id_new_folder( website_id,parent_id )
+			data.folderId = cms_vtex_folder.get_id_new_folder( website_id,parent_id,config )
 			data.isPersisted = 'False'
 		}
 
-		let uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/FolderCreate'
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/FolderCreate'
 
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify( data )
@@ -238,10 +253,11 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Elimina un folder en el CMS de Vtex
 	 * @param {string} id_website Id del website al que pertenece el folder.
 	 * @param {string} id_folder Id del folder que se va a eliminar.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {string} Con el mensaje de error generado por Vtex o con un mensaje de éxito que incluye el id del folder eliminado.
 	 */
-	cms_vtex_folder.delete = ( id_website,id_folder ) => {
-		let uri_def = CMSVtex_general.url_base + '/admin/a/PortalManagement/FolderDel'
+	cms_vtex_folder.delete = ( id_website,id_folder,config ) => {
+		let uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/FolderDel'
 
 		let data = {
 			siteId : id_website,
@@ -251,7 +267,7 @@ module.exports = function( CMSVtex_general ){
 
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify( data )
@@ -279,4 +295,4 @@ module.exports = function( CMSVtex_general ){
 	}
 
 	return cms_vtex_folder;
-}
+})()
