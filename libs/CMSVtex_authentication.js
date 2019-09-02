@@ -70,6 +70,15 @@ module.exports = (function(){
 		}
 	}
 
+	/**
+	 * @method get_cookie_authentication
+	 * @desc Obtiene la cookie necesaria para todas las acciones que se realizan sobre el CMS de Vtex
+	 * @param {String} account Cuenta de Vtex asociada
+	 * @param {String} email Email del usuario de Vtex
+	 * @param {String} access_key Código enviado al correo para permitir acceso a Vtex
+	 * @param {String} token_vtexid Token obtenido con el método send_access_key
+	 * @return {Object|String} String con el mensaje de error o un objeto {cookie:...,expire:...} con la cookie y el tiempo de expiración como marca de tiempo 
+	 */
 	cms_vtex_authentication.get_cookie_authentication = ( account,email,access_key,token_vtexid ) => {
 		let uri_def = CMSVtex_general.get_url_myvtex( account ) + '/api/vtexid/pub/authentication/accesskey/validate';
 		
@@ -86,7 +95,7 @@ module.exports = (function(){
 			body : querystring.stringify(data)
 		})
 		let response_json = JSON.parse( response_sync.body.toString() )
-		console.log('response json',response_json)
+		
 		if(response_json.authStatus == 'Success'){
 			return {
 				cookie : response_json.authCookie.Value,
