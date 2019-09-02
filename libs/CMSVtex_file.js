@@ -3,7 +3,6 @@ const request = require('sync-request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
 const form_data = require('form-data');
-//var http = require('http');
 const fs = require('fs');
 const path = require('path');
 
