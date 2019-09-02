@@ -23,11 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
-    "crypto": "^1.0.1",
-    "ejs": "^2.6.1",
-    "express": "^4.16.4",
     "html-entities": "^1.2.1",
-    "open": "^6.1.0",
     "request": "^2.88.0",
     "sync-request": "^6.1.0"
   },

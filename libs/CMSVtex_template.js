@@ -2,7 +2,6 @@
 const request = require('sync-request');
 const request2 = require('request');
 const cheerio = require('cheerio');
-const crypto = require('crypto');
 const fs = require('fs');
 const querystring = require('querystring');
 const CMSVtex_general = require('./CMSVtex_general');
@@ -129,7 +128,6 @@ module.exports = (function(){
 	}
 
 	cms_vtex_template.get_new_template_id = ( sub_templates,shelf_template,config ) => {
-		//crypto.createHash('md5').update(templatename).digest('hex')
 		let sub_templates_def = (sub_templates) ? 'true' : 'false';
 
 		if(shelf_template){
