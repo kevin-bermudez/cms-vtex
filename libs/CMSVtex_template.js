@@ -2,16 +2,16 @@
 const request = require('sync-request');
 const request2 = require('request');
 const cheerio = require('cheerio');
-const crypto = require('crypto');
 const fs = require('fs');
 const querystring = require('querystring');
+const CMSVtex_general = require('./CMSVtex_general');
 
 /**
  * Template.
  * @module template
  * @since 1.0.0
  * @desc Este módulo es util para manipular templates,sub-templates,shelf templates del CMS de vtex */
-module.exports = function( CMSVtex_general ){
+module.exports = (function(){
 	cms_vtex_template = exports;
 	/**
 	 * @method get
@@ -19,11 +19,12 @@ module.exports = function( CMSVtex_general ){
 	 * @param {Boolean} [sub_templates] Si se requier obtener los sub-templates.
 	 * @param {Boolean} [shelf_template] Si se requiere obtener los shelf-templates, si este se pasa true sub_templates debe ser false.
 	 * @param {Boolean} [no_return_html] Si se quiere obtener los templates sin su html
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object[]} Con toda la información de los templates incluidos id,nombre y html
 	 */
-	cms_vtex_template.get = ( sub_templates,shelf_template,no_return_html ) => {
+	cms_vtex_template.get = ( sub_templates,shelf_template,no_return_html,config ) => {
 		let sub_templates_def = (sub_templates) ? 1 : 0,
-			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/GetTemplateList?type='
+			uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/GetTemplateList?type='
 
 			if(shelf_template){
 				uri_def += 'shelfTemplate'
@@ -35,7 +36,7 @@ module.exports = function( CMSVtex_general ){
 		let response_sync = request('GET',uri_def,
 		{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			}
 		})
@@ -67,38 +68,43 @@ module.exports = function( CMSVtex_general ){
 
 	/**
 	 * @method get_sub_templates
+	 * @param {Boolean} [no_return_html] Si se quiere obtener los subtemplates sin su html
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @desc Obtiene una lista de sub templates.
 	 * @return {Object[]} Con toda la información de los sub templates incluidos id,nombre y html
 	 */
-	cms_vtex_template.get_sub_templates = ( no_return_html ) =>{return cms_vtex_template.get( true,false,no_return_html )}
+	cms_vtex_template.get_sub_templates = ( no_return_html,config ) =>{return cms_vtex_template.get( true,false,no_return_html,config )}
 
 	/**
 	 * @method get_shelf_templates
+	 * @param {Boolean} [no_return_html] Si se quiere obtener los subtemplates sin su html
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @desc Obtiene una lista de shelf templates.
 	 * @return {Object[]} Con toda la información de los shelf templates incluidos id,nombre y html
 	 */
-	cms_vtex_template.get_shelf_templates = ( no_return_html ) => { return cms_vtex_template.get( false,true,no_return_html )}
+	cms_vtex_template.get_shelf_templates = ( no_return_html,config ) => { return cms_vtex_template.get( false,true,no_return_html,config )}
 
 	/**
 	 * @method get_template
 	 * @desc Obtiene la información de un template específico bien sea: template,sub template o shelf template.
 	 * @param {string} id_template Id de template asignado por el CMS de Vtex del que se requiere la información.
 	 * @param {Boolean} [shelf] Se pasa como true si la información que se requiere corresponde a un shelf template.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object} Con la información del template que incluye id,nombre y html
 	 */
-	cms_vtex_template.get_template = ( id_template,shelf ) => {
+	cms_vtex_template.get_template = ( id_template,shelf,config ) => {
 		
 		if(shelf){
-			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/ShelfTemplateContent?ShelfTemplateId=' + id_template
+			uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/ShelfTemplateContent?ShelfTemplateId=' + id_template
 		}
 		else{
-			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/TemplateContent?templateId=' + id_template
+			uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/TemplateContent?templateId=' + id_template
 		}
 		
 		//console.log(uri_def)
 		let response_sync = request('GET',uri_def,{
 				headers : {
-					'Cookie' : CMSVtex_general.cookie_vtex,
+					'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 					'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 				}
 			})
@@ -121,55 +127,20 @@ module.exports = function( CMSVtex_general ){
 		return info_template	
 	}
 
-	cms_vtex_template.get_template_by_name = ( name_template,html_local ) => {
-		let all_templates = JSON.parse(fs.readFileSync('list-templates.json', 'utf8')),
-		//let all_templates = cms_vtex_template.get(),
-			index_template = all_templates.map(( template ) => {
-				return template.name.toLowerCase()
-			}).indexOf(name_template.toLowerCase())
-
-		if(index_template !== -1){
-			return_var = all_templates[index_template]
-			if(html_local){
-				return_var.html = cms_vtex_template.get_html_local( all_templates[index_template].name )
-			}
-		}
-
-		return return_var
-		
-	}
-
-	cms_vtex_template.get_html_local = ( name_template ) => {
-		let path_template = CMSVtex_general.url_src + '/templates/' + name_template + '.html',
-			template_exist = fs.existsSync( path_template )
-
-		if(template_exist){
-			let content = fs.readFileSync( path_template,'utf8' );
-
-			return content;
-		}
-		else{
-			return false;
-		}
-
-
-	}
-
-	cms_vtex_template.get_new_template_id = ( sub_templates,shelf_template ) => {
-		//crypto.createHash('md5').update(templatename).digest('hex')
+	cms_vtex_template.get_new_template_id = ( sub_templates,shelf_template,config ) => {
 		let sub_templates_def = (sub_templates) ? 'true' : 'false';
 
 		if(shelf_template){
-			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/AddShelfTemplate'
+			uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/AddShelfTemplate'
 		}
 		else{
-			uri_def = CMSVtex_general.url_base + 'admin/a/PortalManagement/AddTemplate?siteId=&isSub=' + sub_templates_def
+			uri_def = CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/AddTemplate?siteId=&isSub=' + sub_templates_def
 		}
 
 		let response_sync = request('GET',uri_def,
 		{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			}
 		})
@@ -179,19 +150,19 @@ module.exports = function( CMSVtex_general ){
 		return ($('title').text().trim() == 'VTEX ID Authentication') ? false : $('#templateId').attr('value');
 	}
 
-	cms_vtex_template.save_template = ( name_template,sub_template_us,content,action_form,id_template,original_content_us,shelf_template,class_shelf,round_corners ) => {
+	cms_vtex_template.save_template = ( name_template,sub_template_us,content,action_form,id_template,original_content_us,shelf_template,class_shelf,round_corners,config ) => {
 		let sub_template = (sub_template_us) ? true : false;
 		let original_content = (original_content_us) ? original_content_us : '';
 
 		if(action_form == 'Save'){
 			if(shelf_template){
-				id_template = cms_vtex_template.get_new_template_id(false,true);
+				id_template = cms_vtex_template.get_new_template_id(false,true,config);
 			}
 			else if(sub_template){
-				id_template = cms_vtex_template.get_new_template_id(true);
+				id_template = cms_vtex_template.get_new_template_id(true,false,config);
 			}
 			else{
-				id_template = cms_vtex_template.get_new_template_id();
+				id_template = cms_vtex_template.get_new_template_id(false,false,config);
 			}
 			
 			original_html = ''
@@ -212,18 +183,22 @@ module.exports = function( CMSVtex_general ){
 			data_form.roundCorners = round_corners
 		}
 
-		uri_def = (shelf_template) ? CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveShelfTemplate' : CMSVtex_general.url_base + 'admin/a/PortalManagement/SaveTemplate'
+		if(id_template == undefined){
+			return 'no se pudo crear el template';
+		}
+
+		uri_def = (shelf_template) ? CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/SaveShelfTemplate' : CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/SaveTemplate'
 		//console.log('uri def is',uri_def)
 		let response_sync = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify(data_form)
 		})
 
 		let body = response_sync.body.toString();
-		//console.log(body)
+
 		if(body.indexOf('<applicationexceptionobject>{') !== -1){
 			const x = body.indexOf('<applicationexceptionobject>') + 28
 			const y = body.indexOf('</applicationexceptionobject>')
@@ -246,10 +221,11 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Crea un template.
 	 * @param {string} name_template Nombre del nuevo template.
 	 * @param {string} content Html del nuevo template
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object|string} Si existe un errror al momento de guardar un template retorna un objeto con las propiedades error:true,nombre del template y descripción del error.
 	 */
-	cms_vtex_template.add_template = ( name_template,content ) => {
-		return cms_vtex_template.save_template( name_template,false,content,'Save' );
+	cms_vtex_template.add_template = ( name_template,content,config ) => {
+		return cms_vtex_template.save_template( name_template,false,content,'Save',false,false,false,false,false,config );
 	}
 
 	/**
@@ -259,10 +235,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} id_template Id del template que se va a modificar.
 	 * @param {string} content Nuevo html del template
 	 * @param {string} original_content Html anterior del template
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object|string} Si existe un errror al momento de guardar un template retorna un objeto con las propiedades error:true,nombre del template y descripción del error.
 	 */
-	cms_vtex_template.update_template = ( name_template,id_template,content,original_content ) => {
-		return cms_vtex_template.save_template( name_template,false,content,'Update',id_template,original_content );
+	cms_vtex_template.update_template = ( name_template,id_template,content,original_content,config ) => {
+		return cms_vtex_template.save_template( name_template,false,content,'Update',id_template,original_content,config );
 	}	
 
 	/**
@@ -270,10 +247,11 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Crea un sub template.
 	 * @param {string} name_sub_template Nombre del nuevo sub template.
 	 * @param {string} content Html del nuevo sub template
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object|string} Si existe un errror al momento de guardar un sub template retorna un objeto con las propiedades error,nombre del sub template y descripción del error.
 	 */
-	cms_vtex_template.add_sub_template = ( name_sub_template,content ) => { 
-		return cms_vtex_template.save_template( name_sub_template,true,content,'Save' ) 
+	cms_vtex_template.add_sub_template = ( name_sub_template,content,config ) => { 
+		return cms_vtex_template.save_template( name_sub_template,true,content,'Save',config ) 
 	}
 
 	/**
@@ -283,10 +261,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} id_sub_template Id del sub template que se va a modificar.
 	 * @param {string} content Nuevo html del sub template
 	 * @param {string} original_content Html anterior del sub template
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object|string} Si existe un errror al momento de guardar un sub template retorna un objeto con las propiedades error:true,nombre del template y descripción del error.
 	 */
-	cms_vtex_template.update_sub_template = ( name_sub_template,id_sub_template,content,original_content ) => {
-		return cms_vtex_template.save_template( name_sub_template,true,content,'Update',id_sub_template,original_content )
+	cms_vtex_template.update_sub_template = ( name_sub_template,id_sub_template,content,original_content,config ) => {
+		return cms_vtex_template.save_template( name_sub_template,true,content,'Update',id_sub_template,original_content,config )
 	}
 
 	/**
@@ -296,10 +275,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} content Html del nuevo shelf template.
 	 * @param {string} templateCssClass clase css agregada al contenedor de la vitrina
 	 * @param {Boolean} round_corners
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object|string} Si existe un errror al momento de guardar un shelf template retorna un objeto con las propiedades error,nombre del shelf template y descripción del error.
 	 */
-	cms_vtex_template.add_shelf_template = ( name_template,content,templateCssClass,round_corners ) => {
-		return cms_vtex_template.save_template( name_template,false,content,'Save',false,false,true,templateCssClass,round_corners );
+	cms_vtex_template.add_shelf_template = ( name_template,content,templateCssClass,round_corners,config ) => {
+		return cms_vtex_template.save_template( name_template,false,content,'Save',false,false,true,templateCssClass,round_corners,config );
 	}
 
 	/**
@@ -311,10 +291,11 @@ module.exports = function( CMSVtex_general ){
 	 * @param {string} original_content Html anterior del shelf template
 	 * @param {string} templateCssClass Nueva clase css que se agrega a la vitrina que contiene los productos.
 	 * @param {Boolean} round_corners
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Object|string} Si existe un errror al momento de guardar un shelf template retorna un objeto con las propiedades error:true,nombre del shelf template y descripción del error.
 	 */
-	cms_vtex_template.update_shelf_template = ( name_shelf_template,id_shelf_template,content,original_content,templateCssClass,round_corners ) => {
-		return cms_vtex_template.save_template( name_shelf_template,false,content,'Update',id_shelf_template,original_content,true,templateCssClass,round_corners )
+	cms_vtex_template.update_shelf_template = ( name_shelf_template,id_shelf_template,content,original_content,templateCssClass,round_corners,config ) => {
+		return cms_vtex_template.save_template( name_shelf_template,false,content,'Update',id_shelf_template,original_content,true,templateCssClass,round_corners,config )
 	}
 
 	/**
@@ -322,14 +303,15 @@ module.exports = function( CMSVtex_general ){
 	 * @desc Elimina un template o sub template o shelf template.
 	 * @param {string} id_template Id del temlate,sub template o shelf template que se va a eliminar.
 	 * @param {Boolean} [shelf_template] Se pasa como true si lo que se quiere eliminar es un shelf template.
+	 * @param {Object} config {account:'ex:chefcompany',cookie:'ex:...'}
 	 * @return {Boolean|string} Si realiza la eliminación correctamente devuelve true, de lo contrario retorna un mensaje con el error devuelto por Vtex.
 	 */
-	cms_vtex_template.delete = ( id_template,shelf_template ) => {
+	cms_vtex_template.delete = ( id_template,shelf_template,config ) => {
 		/*let info_template = cms_vtex_template.get_template( id_template );
 
 		return info_template;*/
 
-		let uri_def = (shelf_template) ? CMSVtex_general.url_base + 'admin/a/PortalManagement/ShelfTemplateDel' : CMSVtex_general.url_base + '/admin/a/PortalManagement/TemplateDel'
+		let uri_def = (shelf_template) ? CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/ShelfTemplateDel' : CMSVtex_general.get_url_base( config.account ) + '/admin/a/PortalManagement/TemplateDel'
 		let data = {
 			id : id_template,
 			textConfirm : 'sim',
@@ -337,7 +319,7 @@ module.exports = function( CMSVtex_general ){
 
 		let sync_response = request('POST',uri_def,{
 			headers : {
-				'Cookie' : CMSVtex_general.cookie_vtex,
+				'Cookie' : CMSVtex_general.nameGeneralCookie + '=' + config.cookie,
 				'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			body : querystring.stringify( data )
@@ -350,4 +332,4 @@ module.exports = function( CMSVtex_general ){
 	}
 
 	return cms_vtex_template;
-}
+})()
